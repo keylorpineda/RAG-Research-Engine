@@ -37,7 +37,7 @@ Estas capas se comunican mediante servicios Spring y repositorios JPA, encapsula
 El primer diagrama resume el recorrido completo de un archivo desde que es cargado hasta que queda disponible para las consultas. El flujo está diseñado para ser no bloqueante y se divide en cuatro capas claramente desacopladas:
 
 1. **Ingesta (UI JavaFX / API REST).** El usuario selecciona uno o varios archivos desde la interfaz JavaFX; el `UploadController` expone `POST /api/upload` para recibir la petición multipart. El `StorageServiceImpl` guarda el archivo físicamente y el `DocumentService` crea el registro en la tabla `documents` con estado `PENDING`, tamaño, ruta y metadatos capturados.
-2. **Procesamiento asíncrono (Servicio @Scheduled).** `IngestionServiceImpl.processPending()` se ejecuta cada 10 segundos gracias a `@Scheduled`. Por cada documento pendiente se abre un registro en `jobs`, se marca el documento como `PROCESSING` y se gestionan las excepciones para dejar evidencia en `JobLogRepository` en caso de fallas.
+2. **Procesamiento asíncrono (Servicio @Scheduled).** `IngestionServiceImpl.processPending()` 2 segundos por defecto gracias a `@Scheduled`, configurable mediante la propiedad `ingestion.poll-interval-ms`. Por cada documento pendiente se abre un registro en `jobs`, se marca el documento como `PROCESSING` y se gestionan las excepciones para dejar evidencia en `JobLogRepository` en caso de fallas.
 3. **Chunking y embeddings (TextExtractor + ChunkingService + EmbeddingProvider).** El `TextExtractorImpl` utiliza PDFBox para convertir PDFs a texto y lee directamente TXT/MD. Luego `ChunkingServiceImpl` agrupa el contenido en fragmentos de hasta ~1.000 caracteres con 200 de *overlap* para preservar el contexto. Cada fragmento se vectoriza mediante `CohereEmbeddingProvider`, que envía el texto a la API de Cohere y devuelve un arreglo `double[]` con la representación semántica.
 4. **Persistencia en PostgreSQL.** Los fragmentos se guardan con `DocChunkRepository` en `doc_chunks` y sus embeddings en `embeddings`, usando columnas `JSONB` compatibles con pgvector. Tras terminar el procesamiento se marca el documento como `READY` y el job pasa a `DONE`. Cualquier error deja el documento en `ERROR`, conserva la traza en `jobs` y permite reprocesos manuales.
 
@@ -104,7 +104,7 @@ Para levantar el entorno completo se recomienda contar con:
 
 ## 4. Monitoreo del Proceso Asíncrono
 * Cada archivo cargado se registra como `PENDING` en `documents` y genera un `job` de tipo `INGEST`.
-* El servicio programado consulta cada 10 segundos los documentos pendientes, extrae texto, genera chunks y embeddings, y finalmente marca el documento como `READY` o `ERROR`.
+* El servicio programado consulta cada 2 segundos los documentos pendientes, extrae texto, genera chunks y embeddings, y finalmente marca el documento como `READY` o `ERROR`.
 * Los registros pueden consultarse vía API (`GET /api/documents`) o directamente en las tablas `documents` y `jobs`.
 
 ## 5. Endpoints Disponibles
