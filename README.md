@@ -1,7 +1,7 @@
 # Documento Ejecutivo
 
 ## 1. Información General
-La solución implementa una plataforma de *Retrieval-Augmented Generation* (RAG) para cargar hasta diez documentos en formatos TXT, Markdown o PDF, procesarlos asincrónicamente y responder preguntas sobre su contenido mediante un modelo de lenguaje grande (LLM). El objetivo es ofrecer a los equipos de negocio una herramienta de consulta confiable que combine la precisión de la búsqueda semántica con la generación natural del LLM, manteniendo altos niveles de control y auditoría sobre los datos.
+La solución implementa una plataforma de *Retrieval-Augmented Generation* (RAG) para cargar hasta diez documentos en formatos TXT, Markdown o PDF, procesarlos asincrónicamente y responder preguntas sobre su contenido mediante un modelo de lenguaje grande (LLM). El objetivo es ofrecer una herramienta de consulta confiable que combine la precisión de la búsqueda semántica con la generación natural del LLM, manteniendo altos niveles de control y auditoría sobre los datos.
 
 ## 2. Arquitectura General
 La arquitectura se estructura en cuatro capas principales:
