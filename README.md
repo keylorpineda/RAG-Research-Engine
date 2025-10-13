@@ -58,13 +58,7 @@ El segundo diagrama muestra el recorrido de una pregunta y cómo se materializa 
 
 Ambos flujos se complementan: el pipeline offline mantiene la base de conocimientos fresca y normalizada, mientras que el pipeline online aprovecha esos datos para ofrecer respuestas precisas en tiempo real.
 
-## 5. Beneficios para el Negocio
-* **Productividad:** Los equipos pueden consultar información dispersa sin revisar manualmente cada documento.
-* **Trazabilidad y control:** Cada respuesta se respalda con fragmentos concretos, reduciendo riesgos de alucinaciones y facilitando auditorías.
-* **Escalabilidad:** La separación entre ingesta, procesamiento y consulta permite ampliar cada componente según la demanda y adoptar mejoras (por ejemplo, nuevos modelos de embeddings) de forma incremental.
-* **Portabilidad:** Al utilizar estándares (Spring Boot, PostgreSQL, Docker), la solución se integra con infraestructuras existentes y facilita la adopción en distintos entornos.
-
-## 6. Modelo de Datos y Diagrama ER
+## 5. Modelo de Datos y Diagrama ER
 El modelo relacional se compone de tablas normalizadas hasta 3FN (`documents`, `doc_chunks`, `embeddings`, `jobs`, `queries`) que garantizan integridad referencial y trazabilidad del pipeline completo de RAG.
 
 ![Diagrama entidad-relación](docs/diagramaER.png)
@@ -95,7 +89,7 @@ Para levantar el entorno completo se recomienda contar con:
 
 ## 3. Puesta en Marcha del Backend
 
-### Opción A – Docker Compose
+### Docker Compose
 
 1. Construir y levantar los servicios (PostgreSQL + API):
    ```bash
@@ -107,15 +101,6 @@ Para levantar el entorno completo se recomienda contar con:
    docker compose down
    ```
 
-### Opción B – Ejecución Local
-
-1. Levantar PostgreSQL (puede reutilizarse `docker compose up postgres`).
-2. Exportar las variables de entorno (o usar un archivo `.env` con herramientas como `direnv`).
-3. Compilar y ejecutar el backend Spring Boot:
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-4. El scheduler de ingesta se habilita automáticamente a través de la anotación `@Scheduled` en `IngestionServiceImpl`, por lo que no se requiere un proceso adicional para el worker.
 
 ## 4. Monitoreo del Proceso Asíncrono
 * Cada archivo cargado se registra como `PENDING` en `documents` y genera un `job` de tipo `INGEST`.
@@ -131,27 +116,8 @@ Para levantar el entorno completo se recomienda contar con:
 | GET    | `/api/documents/{id}`  | Obtiene los detalles y chunks asociados a un documento específico           |
 | POST   | `/api/query`           | Ejecuta una pregunta `q` con `k` fragmentos de contexto y devuelve la respuesta del LLM |
 
-Ejemplos con `curl`:
-
-```bash
-# Subir dos archivos
-curl -X POST http://localhost:8080/api/upload \
-  -F "files=@/ruta/al/documento1.pdf" \
-  -F "files=@/ruta/al/documento2.md"
-
-# Listar documentos
-curl http://localhost:8080/api/documents
-
-# Consultar detalle
-curl http://localhost:8080/api/documents/1
-
-# Realizar una pregunta (k=5 por defecto)
-curl -X POST http://localhost:8080/api/query \
-  -H "Content-Type: application/json" \
-  -d '{"q": "¿Cuál es el alcance del proyecto?", "k": 5}'
-```
-
 ## 6. Interfaz JavaFX
+
 La UI de escritorio ofrece una vista unificada para cargar archivos, revisar el estado de ingesta y formular preguntas.
 
 ![Demostración de la interfaz JavaFX](docs/pruebaPrograma.gif)
