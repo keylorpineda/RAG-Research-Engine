@@ -221,19 +221,24 @@ class RagApp(ctk.CTk):
         container.rowconfigure(1, weight=1)
 
         header_row = ctk.CTkFrame(container, fg_color=PALETTE["surface"],
-                                  corner_radius=6, height=32)
+                                  corner_radius=6)
         header_row.grid(row=0, column=0, sticky="ew")
-        header_row.grid_propagate(False)
-        header_row.columnconfigure(1, weight=1)
+        
+        # Configure column weights for alignment
+        header_row.columnconfigure(0, weight=0, minsize=40)   # ID
+        header_row.columnconfigure(1, weight=1, minsize=280)  # Filename
+        header_row.columnconfigure(2, weight=0, minsize=100)  # Status
+        header_row.columnconfigure(3, weight=0, minsize=80)   # Size
+        header_row.columnconfigure(4, weight=0, minsize=50)   # Action
 
-        for col, (label, w) in enumerate([("ID", 50), ("Filename", 0), ("Status", 100), ("Size", 80), ("Action", 60)]):
+        for col, (label, w) in enumerate([("ID", 40), ("Filename", 280), ("Status", 100), ("Size", 80), ("Action", 50)]):
             ctk.CTkLabel(
                 header_row, text=label,
                 font=self.font_badge,
                 text_color=PALETTE["muted"],
-                width=w if w else 0,
-                anchor="w",
-            ).grid(row=0, column=col, padx=(12 if col == 0 else 4, 4), pady=0, sticky="w")
+                width=w,
+                anchor="w" if col != 3 else "e",
+            ).grid(row=0, column=col, padx=(12 if col == 0 else 4, 4), pady=4, sticky="ew")
 
 
         self.doc_frame = ctk.CTkScrollableFrame(
@@ -244,7 +249,7 @@ class RagApp(ctk.CTk):
             scrollbar_button_hover_color=PALETTE["accent"],
         )
         self.doc_frame.grid(row=1, column=0, sticky="nsew", pady=(2, 0))
-        self.doc_frame.columnconfigure(1, weight=1)
+        self.doc_frame.columnconfigure(0, weight=1)
 
         self.doc_rows: list[dict] = []
 
@@ -458,21 +463,26 @@ class RagApp(ctk.CTk):
 
         for i, doc in enumerate(docs):
             row_bg = PALETTE["card"] if i % 2 == 0 else PALETTE["surface"]
-            row_frame = ctk.CTkFrame(self.doc_frame, fg_color=row_bg, corner_radius=4, height=36)
+            row_frame = ctk.CTkFrame(self.doc_frame, fg_color=row_bg, corner_radius=4)
             row_frame.grid(row=i, column=0, sticky="ew", pady=1)
-            row_frame.grid_propagate(False)
-            row_frame.columnconfigure(1, weight=1)
+            
+            # Configure column weights to match header
+            row_frame.columnconfigure(0, weight=0, minsize=40)   # ID
+            row_frame.columnconfigure(1, weight=1, minsize=280)  # Filename
+            row_frame.columnconfigure(2, weight=0, minsize=100)  # Status
+            row_frame.columnconfigure(3, weight=0, minsize=80)   # Size
+            row_frame.columnconfigure(4, weight=0, minsize=50)   # Action
 
             ctk.CTkLabel(row_frame, text=str(doc.get("id", "")),
                          font=self.font_small, text_color=PALETTE["muted"],
-                         width=50, anchor="w").grid(row=0, column=0, padx=(12, 4), pady=0, sticky="w")
+                         width=40, anchor="w").grid(row=0, column=0, padx=(12, 4), pady=4, sticky="ew")
 
             name = doc.get("filename", "")
-            if len(name) > 35:
-                name = name[:32] + "..."
+            if len(name) > 40:
+                name = name[:37] + "..."
             ctk.CTkLabel(row_frame, text=name, font=self.font_small,
-                         text_color=PALETTE["text"], anchor="w").grid(
-                row=0, column=1, padx=4, sticky="w")
+                         text_color=PALETTE["text"], width=280, anchor="w").grid(
+                row=0, column=1, padx=4, pady=4, sticky="ew")
 
             status = doc.get("status", "")
             color = STATUS_COLORS.get(status, PALETTE["muted"])
@@ -484,20 +494,20 @@ class RagApp(ctk.CTk):
                 width=100,
                 anchor="w",
             )
-            status_badge.grid(row=0, column=2, padx=4, sticky="w")
+            status_badge.grid(row=0, column=2, padx=4, pady=4, sticky="ew")
 
             size_bytes = doc.get("size", 0) or 0
             size_label = _format_size(size_bytes)
             ctk.CTkLabel(row_frame, text=size_label, font=self.font_small,
                          text_color=PALETTE["muted"], width=80, anchor="e").grid(
-                row=0, column=3, padx=4, sticky="e")
+                row=0, column=3, padx=4, pady=4, sticky="ew")
 
             btn_del = ctk.CTkButton(
-                row_frame, text="🗑", font=self.font_small, width=30, height=24,
+                row_frame, text="🗑", font=self.font_small, width=40, height=24,
                 fg_color="transparent", hover_color=PALETTE["error"],
                 text_color=PALETTE["error"],
                 command=lambda d=doc: self._delete_document(d["id"]))
-            btn_del.grid(row=0, column=4, padx=(4, 12), sticky="e")
+            btn_del.grid(row=0, column=4, padx=(4, 12), pady=4, sticky="e")
 
 
         self.doc_frame.columnconfigure(0, weight=1)
