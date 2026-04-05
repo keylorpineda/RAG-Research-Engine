@@ -1,7 +1,41 @@
-.idea/
-target/
-*.log
-*.iml
-uploads/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
 .env
-*.DS_Store
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Data & Uploads
+uploads/
+data/
+*.sqlite3
+*.db
+
+# Docker
+docker-compose.override.yml
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Data
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

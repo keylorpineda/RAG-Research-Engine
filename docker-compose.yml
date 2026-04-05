@@ -2,22 +2,28 @@ services:
   postgres:
     image: postgres:15
     environment:
+      POSTGRES_DB: ragdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ragdb
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-  app:
+      - pg_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  api:
     build: .
-    depends_on:
-      - postgres
     ports:
-      - "8080:8080"
+      - "8000:8000"
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/ragdb
+    depends_on:
+      - postgres
     volumes:
-      - ./uploads:/app/uploads
+      - uploads:/app/uploads
+
 volumes:
-  pgdata:
+  pg_data:
+  uploads:

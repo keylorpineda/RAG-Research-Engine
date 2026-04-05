@@ -1,14 +1,18 @@
-# Build stage
-FROM maven:3.9-eclipse-temurin-21 AS build
-WORKDIR /app
-COPY . .
-RUN mvn -q -e -DskipTests package
+FROM python:3.12-slim
 
-# Run stage
-FROM eclipse-temurin:21-jre
 WORKDIR /app
-ENV JAVA_OPTS=""
-COPY --from=build /app/target/*.jar app.jar
-COPY src/main/resources/init.sql /docker-entrypoint-initdb.d/init.sql
-EXPOSE 8080
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar app.jar"]
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
