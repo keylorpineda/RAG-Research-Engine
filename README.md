@@ -47,22 +47,35 @@ The engine leverages **Groq's LPU (Language Processing Unit)** infrastructure fo
 
 The RAG Research Engine operates under a decoupled methodology, separating the ingestion daemon from the query pipeline to ensure system resilience and scalability.
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│              RAG Research Desktop Client (GUI)          │
-│       (Real-time Status Badges & Context Cards)         │
-├────────────────────────────┬────────────────────────────┤
-│     Ingestion Pipeline     │      Research Pipeline     │
-│  (Multi-threaded Worker)   │   (Vector + Time Scoring)  │
-├────────────────────────────┴────────────────────────────┤
-│                  FastAPI Backend Layer                  │
-│       ├── Document Parsing & Recursive Chunking         │
-│       ├── Vectorization (Cohere Multilingual)           │
-│       └── Grounded Synthesis (Groq Llama 3.3 70B)       │
-├─────────────────────────────────────────────────────────┤
-│            Data Persistence (PostgreSQL 15)             │
-│       (Docs · Chunks · Embeddings · Metadata)           │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+	%% Modern, clean visual language with separated subgraphs.
+	classDef source fill:#e8f5e9,stroke:#2e7d32,stroke-width:1.5px,color:#1b4332;
+	classDef process fill:#e3f2fd,stroke:#1565c0,stroke-width:1.5px,color:#0d47a1;
+	classDef store fill:#fff8e1,stroke:#ef6c00,stroke-width:1.5px,color:#6d4c41;
+	classDef output fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1.5px,color:#4a148c;
+
+	subgraph ING[Ingestion Pipeline]
+		direction LR
+		U[Unstructured Data\nPDF / Web] --> S[Recursive Character\nText Splitting]
+		S --> E[Vector Embeddings]
+		E --> P[(PostgreSQL + pgvector\nEmbeddings Storage)]
+	end
+
+	subgraph RAG[RAG Query Loop]
+		direction LR
+		Q[User Query] --> M[Semantic Search\nSimilarity]
+		M --> C[Context Injection]
+		C --> G[Gemini 1.5 Flash\nReasoning]
+		G --> A[Verified Answer\nwith Citations]
+	end
+
+	P -.-> M
+
+	class U,Q source;
+	class S,E,M,C,G process;
+	class P store;
+	class A output;
 ```
 
 ---
