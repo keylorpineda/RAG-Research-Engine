@@ -49,11 +49,10 @@ The RAG Research Engine operates under a decoupled methodology, separating the i
 
 ```mermaid
 flowchart LR
-	%% Modern, clean visual language with separated subgraphs.
-	classDef source fill:#e8f5e9,stroke:#2e7d32,stroke-width:1.5px,color:#1b4332;
-	classDef process fill:#e3f2fd,stroke:#1565c0,stroke-width:1.5px,color:#0d47a1;
-	classDef store fill:#fff8e1,stroke:#ef6c00,stroke-width:1.5px,color:#6d4c41;
-	classDef output fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1.5px,color:#4a148c;
+	%% Ingestion Pipeline (large and readable)
+	classDef source fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b4332;
+	classDef process fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
+	classDef store fill:#fff8e1,stroke:#ef6c00,stroke-width:2px,color:#6d4c41;
 
 	subgraph ING[Ingestion Pipeline]
 		direction LR
@@ -61,6 +60,18 @@ flowchart LR
 		S --> E[Vector Embeddings]
 		E --> P[(PostgreSQL + pgvector\nEmbeddings Storage)]
 	end
+
+	class U source;
+	class S,E process;
+	class P store;
+```
+
+```mermaid
+flowchart LR
+	%% Retrieval and Generation loop (large and readable)
+	classDef source fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b4332;
+	classDef process fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
+	classDef output fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px,color:#4a148c;
 
 	subgraph RAG[RAG Query Loop]
 		direction LR
@@ -70,13 +81,12 @@ flowchart LR
 		G --> A[Verified Answer\nwith Citations]
 	end
 
-	P -.-> M
-
-	class U,Q source;
-	class S,E,M,C,G process;
-	class P store;
+	class Q source;
+	class M,C,G process;
 	class A output;
 ```
+
+Vector store linkage: PostgreSQL + pgvector feeds semantic retrieval during the RAG query loop.
 
 ---
 
