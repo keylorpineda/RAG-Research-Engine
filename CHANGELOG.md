@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-10-22
+
+Milestone **v2.1 — Web app**, and everything the public demo (v2.2) needs short of the
+accounts.
+
+### Added
+
+- Angular web app in `web/` (pnpm, standalone, zoneless): dark and light themes, English and
+  Spanish, responsive down to 360 px (#39).
+- Library: drag-and-drop uploads with per-file progress and client-side checks, live document
+  status, filters, retry, and deletes with an undo window (#40).
+- Ask: answers with `[n]` citations linked to their passages and scores, an evidence meter, and
+  an abstention card that explains each reason (#41).
+- Benchmarks page generated from `eval/results` (#41) and inline SVG illustrations (#42).
+- API: `chunkCount` on documents; `uploadsEnabled`, `maxUploadMb` and `maxFilesPerUpload` on
+  `/api/health`; `UPLOADS_ENABLED=false` turns uploads off for a public demo (#40).
+- Public demo limits, all off by default: a daily question cap counted in the database, a
+  per-client hourly limit, and a cache for repeated questions; the web app shows the questions
+  left and words the limits in the visitor's language (#44).
+- Deployment: `render.yaml`, `web/vercel.json`, a single-VM setup with Caddy for Oracle Cloud
+  (`deploy/oracle/`), `python -m eval.seed` to preload the PEPs, and `docs/DEPLOY.md` (#44).
+
+### Fixed
+
+- The Dockerfile had literal `
+` sequences in two instructions; the image now builds, serves on
+  `$PORT`, applies migrations on start and can skip the local model (`EXTRAS=none`) (#44).
+- A `.dockerignore` keeps `.env`, `.venv` and `node_modules` out of the build context (#44).
+
+### Removed
+
+- The CustomTkinter desktop client (`desktop/`, `gui.py` and the `gui` extra): the web app
+  covers uploads, documents and questions (#43).
+
 ## [2.0.0] - 2026-10-22
 
 Milestone **v2.0 — Measured retrieval**: fix the retrieval bugs, move vectors into pgvector,
@@ -80,6 +114,7 @@ python -m app.worker      # start at least one worker
 First prototype: FastAPI, Postgres with JSONB vectors, Cohere embeddings, Groq answers and the
 CustomTkinter desktop client.
 
-[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.0.0...develop
+[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.0...develop
+[2.1.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/keylorpineda/RAG-Research-Engine/releases/tag/v1.0.0

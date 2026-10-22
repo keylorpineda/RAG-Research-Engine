@@ -20,6 +20,7 @@ class DocumentOut(Schema):
     size: int | None
     status: str
     upload_ts: datetime | None
+    chunk_count: int = Field(default=0, description="Passages stored for the document.")
 
 
 class ChunkOut(Schema):
@@ -46,6 +47,12 @@ class HealthOut(Schema):
     status: str
     embedding_model: str
     min_similarity: float
+    uploads_enabled: bool
+    max_upload_mb: int
+    max_files_per_upload: int
+    questions_left_today: int | None = Field(
+        default=None, description="Remaining questions under the daily demo cap, if there is one."
+    )
     jobs: dict[str, int] = Field(description="Job count per status.")
 
 

@@ -1,0 +1,6 @@
+# Dependencies allowed to run install scripts (pnpm 11 blocks the rest).
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true

@@ -221,3 +221,13 @@ def test_abstention_has_no_answer_text(client: TestClient, monkeypatch: pytest.M
     assert body["answer"] is None
     assert body["reason"] == "insufficient_evidence"
     assert body["refs"] == []
+
+
+def test_uploads_can_be_turned_off(
+    client: TestClient, uploads: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(settings, "uploads_enabled", False)
+    response = client.post("/api/upload", files=_files(("notes.txt", b"hello")))
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "forbidden"
+    assert not uploads.exists() or list(uploads.iterdir()) == []

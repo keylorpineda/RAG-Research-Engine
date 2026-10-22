@@ -54,6 +54,17 @@ class Settings(BaseSettings):
     uploads_dir: str = "uploads"
     max_upload_mb: int = 20
     max_files_per_upload: int = 10
+    # Off for a public demo: visitors ask about the documents already indexed.
+    uploads_enabled: bool = True
+    # Public demo on a provider quota (app/core/demo_limits.py). All off by default.
+    daily_question_limit: int | None = None
+    questions_per_client_per_hour: int | None = None
+    answer_cache_size: int = 0  # 0 = no cache; only for instances whose documents do not change
+    answer_cache_seconds: int = 86400
+    # Read the client address from X-Forwarded-For (set it only behind a proxy you trust).
+    trust_proxy_headers: bool = False
+    # Origins allowed to call the API from a browser, comma separated. Empty = same origin only.
+    cors_origins: str = ""
     # Ingestion worker (python -m app.worker). EMBEDDED_WORKER runs one inside the API process,
     # handy for a single-container setup.
     embedded_worker: bool = False

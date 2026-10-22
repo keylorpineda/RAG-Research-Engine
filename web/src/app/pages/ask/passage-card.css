@@ -1,0 +1,150 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  scroll-margin: 96px;
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease,
+    transform 250ms var(--ease),
+    opacity 200ms ease;
+}
+
+:host(.active),
+:host(:focus) {
+  border-color: var(--accent);
+  background: var(--highlight);
+  transform: translateX(-4px);
+  outline: none;
+}
+
+:host(.dim) {
+  opacity: 0.55;
+}
+
+:host(.uncited:not(.active)) {
+  border-style: dashed;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.n {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--accent-bg);
+  color: var(--accent-fg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+:host(.uncited) .n {
+  background: var(--raised);
+  color: var(--muted);
+}
+
+.file {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+.tag {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--raised);
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.chunk {
+  flex: none;
+  margin-left: auto;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+p {
+  margin: 0;
+  color: var(--soft);
+  font-size: 14px;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+:host(.active) p,
+:host(:focus) p {
+  -webkit-line-clamp: unset;
+}
+
+.scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr) 38px);
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.bar {
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--track);
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  transform-origin: left;
+  animation: grow 900ms var(--ease) both;
+}
+
+.dense {
+  background: var(--dense);
+}
+
+.lex {
+  background: var(--lex);
+}
+
+.rerank {
+  background: var(--accent);
+}
+
+.dense-fg {
+  color: var(--dense-fg);
+}
+
+.lex-fg {
+  color: var(--lex-fg);
+}
+
+.accent-fg {
+  color: var(--accent-fg);
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}

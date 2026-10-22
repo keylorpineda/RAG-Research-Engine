@@ -1,0 +1,107 @@
+<div class="head rise">
+  <h1 class="page-title">{{ t().title }}</h1>
+  @if (store.state() === 'ready') {
+    <span class="stats">
+      {{ i18n.format(t().stats, { docs: store.counts().all, passages: store.passages() }) }}
+    </span>
+  }
+</div>
+
+@if (store.uploadsEnabled()) {
+  <app-drop-zone class="rise" [maxMb]="store.limits().maxUploadMb" (files)="store.upload($event)" />
+} @else {
+  <p class="note rise">{{ t().uploadsOff }}</p>
+}
+
+<div class="notices" aria-live="polite">
+  @for (notice of store.notices(); track notice.key) {
+    <p class="notice" [attr.data-tone]="notice.tone">
+      <span>{{ notice.text }}</span>
+      <button type="button" [attr.aria-label]="t().dismiss" (click)="store.dismiss(notice.key)">
+        ×
+      </button>
+    </p>
+  }
+</div>
+
+@if (store.uploads().length) {
+  <ul class="list" [attr.aria-label]="t().status.uploading">
+    @for (upload of store.uploads(); track upload.key) {
+      <li class="upload">
+        <span class="filename">{{ upload.name }}</span>
+        <span class="track" aria-hidden="true">
+          <span class="bar" [style.transform]="'scaleX(' + upload.progress + ')'"></span>
+        </span>
+        <span class="pill">
+          {{ i18n.format(t().status.uploading, { pct: i18n.percent(upload.progress) }) }}
+        </span>
+      </li>
+    }
+  </ul>
+}
+
+@switch (store.state()) {
+  @case ('loading') {
+    <ul class="list" aria-hidden="true">
+      @for (i of [0, 1, 2]; track i) {
+        <li class="skeleton" [style.animation-delay]="i * 0.12 + 's'"></li>
+      }
+    </ul>
+  }
+  @case ('error') {
+    <section class="empty">
+      <app-illustration name="no-evidence" [label]="i18n.t().art.noEvidence" [size]="140" />
+      <h2>{{ t().loadError }}</h2>
+      <p>{{ store.loadError() }}</p>
+      <button type="button" class="ghost" (click)="store.refresh()">{{ t().tryAgain }}</button>
+    </section>
+  }
+  @case ('ready') {
+    @if (store.counts().all === 0) {
+      <section class="empty rise">
+        <app-illustration name="empty-library" [label]="i18n.t().art.emptyLibrary" [size]="170" />
+        <h2>{{ t().emptyTitle }}</h2>
+        <p>{{ t().emptyBody }}</p>
+      </section>
+    } @else {
+      <div class="tabs" role="tablist" [attr.aria-label]="t().filter">
+        @for (key of filters; track key; let i = $index) {
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="store.filter() === key"
+            [attr.tabindex]="store.filter() === key ? 0 : -1"
+            [class.active]="store.filter() === key"
+            (click)="store.filter.set(key)"
+            (keydown)="onTabKey($event, i)"
+          >
+            {{ t().tabs[key] }} <span class="count">{{ store.counts()[key] }}</span>
+          </button>
+        }
+      </div>
+
+      @if (store.visible().length) {
+        <ul class="list" role="tabpanel">
+          @for (doc of store.visible(); track doc.id; let i = $index) {
+            <li class="rise" [style.animation-delay]="i * 0.04 + 's'">
+              <app-document-row
+                [doc]="doc"
+                (retry)="store.retry($event)"
+                (remove)="store.remove($event)"
+              />
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="note" role="tabpanel">{{ t().emptyFilter }}</p>
+      }
+    }
+  }
+}
+
+@if (store.lastDeleted(); as doc) {
+  <div class="toast" role="status">
+    <span>{{ i18n.format(t().deleted, { name: doc.filename }) }}</span>
+    <button type="button" (click)="store.undo()">{{ t().undo }}</button>
+  </div>
+}

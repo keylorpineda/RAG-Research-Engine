@@ -4,6 +4,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app import worker
 from app.core.config import settings
@@ -32,11 +33,20 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(
     title="RAG Research Engine",
     description="Retrieval-augmented question answering over your own documents.",
-    version="2.0.0",
+    version="2.1.0",
     lifespan=lifespan,
 )
 
 install_error_handling(app)
+origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
+if origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_methods=["GET", "POST", "DELETE"],
+        allow_headers=["Content-Type", "X-Request-ID"],
+        expose_headers=["X-Request-ID"],
+    )
 app.include_router(upload.router)
 app.include_router(documents.router)
 app.include_router(query.router)

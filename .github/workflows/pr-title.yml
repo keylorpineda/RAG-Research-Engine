@@ -34,7 +34,8 @@ jobs:
             ingestion
             db
             eval
-            gui
+            web
+            deploy
             deps
             deps-dev
             ci

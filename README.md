@@ -125,7 +125,7 @@ EVAL_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rag_eval uv run 
 | `app/` | API, retrieval, answering, ingestion, worker |
 | `migrations/` | Alembic, from the v1 schema |
 | `eval/` · `bench/` | Retrieval benchmark · vector search latency |
-| `desktop/` | Desktop client (`python gui.py`) |
+| `web/` | Angular client: ask, library, benchmarks (`pnpm start`) |
 | `docs/` | Benchmarks, architecture, decisions, these cards (`docs/assets/build.py`) |
 
 Contributions: [`CONTRIBUTING.md`](.github/CONTRIBUTING.md) · security reports:
