@@ -5,7 +5,9 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - Unreleased
+## [Unreleased]
+
+## [2.0.0] - 2026-10-22
 
 Milestone **v2.0 — Measured retrieval**: fix the retrieval bugs, move vectors into pgvector,
 add hybrid search and abstention, and prove every change with a reproducible benchmark.
@@ -77,3 +79,7 @@ python -m app.worker      # start at least one worker
 
 First prototype: FastAPI, Postgres with JSONB vectors, Cohere embeddings, Groq answers and the
 CustomTkinter desktop client.
+
+[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.0.0...develop
+[2.0.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v1.0.0...v2.0.0
+[1.0.0]: https://github.com/keylorpineda/RAG-Research-Engine/releases/tag/v1.0.0
