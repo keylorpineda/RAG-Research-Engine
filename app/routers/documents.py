@@ -1,62 +1,38 @@
 import logging
 import pathlib
-from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
+from app.core.errors import NotFoundError
 from app.models.database import DbSession
 from app.models.models import Document
+from app.schemas import DocumentDetailOut, DocumentOut, MessageOut
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["documents"])
 
 
+def _get_or_404(db: DbSession, doc_id: int) -> Document:
+    doc = db.get(Document, doc_id)
+    if doc is None:
+        raise NotFoundError("Document not found.")
+    return doc
+
+
 @router.get("/documents")
-def list_documents(db: DbSession) -> list[dict[str, Any]]:
+def list_documents(db: DbSession) -> list[DocumentOut]:
     docs = db.query(Document).order_by(Document.id).all()
-    return [
-        {
-            "id": d.id,
-            "filename": d.filename,
-            "mime": d.mime,
-            "size": d.size,
-            "status": d.status,
-            "uploadTs": d.upload_ts.isoformat() if d.upload_ts else None,
-        }
-        for d in docs
-    ]
+    return [DocumentOut.model_validate(d) for d in docs]
 
 
 @router.get("/documents/{doc_id}")
-def get_document(doc_id: int, db: DbSession) -> dict[str, Any]:
-    doc = db.query(Document).filter(Document.id == doc_id).first()
-    if not doc:
-        raise HTTPException(status_code=404, detail="Document not found")
-    return {
-        "id": doc.id,
-        "filename": doc.filename,
-        "mime": doc.mime,
-        "size": doc.size,
-        "status": doc.status,
-        "uploadTs": doc.upload_ts.isoformat() if doc.upload_ts else None,
-        "chunks": [
-            {
-                "id": c.id,
-                "chunkIndex": c.chunk_index,
-                "tokenCount": c.token_count,
-                "text": c.text,
-            }
-            for c in doc.chunks
-        ],
-    }
+def get_document(doc_id: int, db: DbSession) -> DocumentDetailOut:
+    return DocumentDetailOut.model_validate(_get_or_404(db, doc_id))
 
 
 @router.delete("/documents/{doc_id}")
-def delete_document(doc_id: int, db: DbSession) -> dict[str, str]:
-    doc = db.query(Document).filter(Document.id == doc_id).first()
-    if not doc:
-        raise HTTPException(status_code=404, detail="Document not found")
-
+def delete_document(doc_id: int, db: DbSession) -> MessageOut:
+    doc = _get_or_404(db, doc_id)
     try:
         pathlib.Path(doc.path).unlink(missing_ok=True)
     except OSError:
@@ -64,4 +40,4 @@ def delete_document(doc_id: int, db: DbSession) -> dict[str, str]:
 
     db.delete(doc)
     db.commit()
-    return {"message": "Document deleted"}
+    return MessageOut(message="Document deleted")

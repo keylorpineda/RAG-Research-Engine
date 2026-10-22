@@ -60,6 +60,7 @@ ignore_missing_imports = true
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
 markers = ["integration: needs a running Postgres with pgvector (DATABASE_URL)"]
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
 
 [tool.coverage.run]
 source = ["app"]
