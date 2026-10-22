@@ -12,6 +12,8 @@ add hybrid search and abstention, and prove every change with a reproducible ben
 
 ### Added
 
+- Cohere results: hybrid + rerank Recall@5 0.879; abstention threshold calibrated at 0.60;
+  optional token and call budgets for trial keys (#29, #33).
 - Reproducible retrieval benchmark: 26 PEPs pinned by commit, 66 answerable questions
   (English and Spanish) with evidence quotes and 16 unanswerable ones, Recall@k, MRR, nDCG,
   abstention trade-off and latency, run in CI with a regression gate (`eval/`) (#10).

@@ -103,3 +103,26 @@ def test_budget_is_built_from_settings() -> None:
     assert isinstance(provider, CohereEmbeddings)
     assert provider._budget is not None
     assert provider._budget.limit == 90_000
+    assert provider._call_budget is None
+
+
+@respx.mock
+def test_cohere_paces_its_calls_per_minute() -> None:
+    clock = FakeClock()
+    respx.post(COHERE_EMBED_URL).mock(
+        return_value=httpx.Response(200, json={"embeddings": {"float": [[0.1]]}})
+    )
+    cohere = CohereEmbeddings(
+        "k",
+        client=httpx.Client(),
+        sleep=lambda _: None,
+        call_budget=TokenBudget(2, clock=clock, sleep=clock.sleep),
+    )
+    for _ in range(3):
+        cohere.embed_query("q")
+    assert clock.slept == [pytest.approx(60.0)]
+
+
+def test_cohere_threshold_is_calibrated() -> None:
+    settings = Settings(embedding_provider="cohere", cohere_api_key="k")
+    assert settings.abstain_threshold == 0.60

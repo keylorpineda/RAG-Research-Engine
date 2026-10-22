@@ -5,6 +5,7 @@ script in the repository that you can run again.
 
 - [Retrieval quality](#retrieval-quality)
 - [Abstention](#abstention)
+- [Cohere embeddings](#cohere-embeddings)
 - [Experiments: chunk size and embedding model](#experiments-chunk-size-and-embedding-model)
 - [Vector search latency](#vector-search-latency)
 
@@ -67,6 +68,50 @@ The threshold is calibrated on the questions it is evaluated on (82 in total), s
 starting point for other corpora, not a guarantee. Each embedding model needs its own value:
 `DEFAULT_MIN_SIMILARITY` in `app/core/config.py`.
 
+## Cohere embeddings
+
+The same benchmark with `embed-multilingual-v3.0` (1,024 dimensions) and, for the last row, the
+`rerank-v3.5` cross-encoder over the top 30 hybrid candidates. Run with a trial key.
+
+| Mode | Recall@1 | Recall@5 | Recall@10 | MRR@10 | nDCG@10 | Right PEP in top 5 | Recall@5 EN | Recall@5 ES | p50 |
+| :-- | --: | --: | --: | --: | --: | --: | --: | --: | --: |
+| Dense | 0.409 | 0.712 | 0.818 | 0.536 | 0.567 | 1.000 | 0.806 | 0.600 | 206 ms |
+| Lexical | 0.136 | 0.455 | 0.561 | 0.275 | 0.323 | 0.818 | 0.667 | 0.200 | 9 ms |
+| Hybrid | 0.379 | 0.727 | 0.788 | 0.509 | 0.534 | 1.000 | 0.861 | 0.567 | 218 ms |
+| **Hybrid + rerank** | 0.712 | 0.879 | 0.894 | 0.779 | 0.777 | 1.000 | 0.917 | 0.833 | 431 ms |
+
+- **The embedding model matters most.** Dense Recall@5 goes from 0.379 (local MiniLM) to 0.712,
+  and every question finds its PEP in the top 5.
+- **Reranking is the largest single gain:** hybrid + rerank puts the exact passage first for 71%
+  of the questions (MRR 0.779) and closes most of the gap in Spanish (0.833), for about 210 ms
+  more per question.
+- **Hybrid adds less on top of a strong dense model** (+1.5 points of Recall@5), and with Cohere
+  it slightly lowers MRR: the lexical list pushes some exact passages from first to second.
+  Rerank recovers it.
+- Lexical numbers are identical to the local run, as expected: it does not use embeddings.
+
+**Abstention with Cohere.**
+
+| τ | Answerable answered | Unanswerable refused | Python-adjacent refused | Abstention precision |
+| --: | --: | --: | --: | --: |
+| 0.35 | 1.000 | 0.312 | 0.000 | 1.000 |
+| 0.40 | 1.000 | 0.438 | 0.000 | 1.000 |
+| 0.45 | 1.000 | 0.562 | 0.000 | 1.000 |
+| 0.50 | 0.970 | 0.688 | 0.333 | 0.846 |
+| 0.55 | 0.879 | 0.750 | 0.333 | 0.600 |
+| 0.60 | 0.727 | 1.000 | 1.000 | 0.471 |
+| 0.65 | 0.485 | 1.000 | 1.000 | 0.320 |
+
+The default for Cohere is **τ = 0.60**, the threshold with the best balanced accuracy (0.864): it
+refuses every unanswerable question, including the six Python-adjacent ones, and answers 73% of
+the answerable ones. Cohere's similarities sit higher and closer together than MiniLM's, so the
+two groups overlap more. If answering more matters more than refusing everything, `MIN_SIMILARITY=0.50`
+answers 97% and still refuses 69%.
+
+```bash
+EMBEDDING_PROVIDER=cohere COHERE_API_KEY=... COHERE_TOKENS_PER_MINUTE=90000   COHERE_EMBED_REQUESTS_PER_MINUTE=90 COHERE_RERANK_REQUESTS_PER_MINUTE=10   EVAL_DATABASE_URL=... uv run python -m eval.run --rerank --tag cohere
+```
+
 ## Experiments: chunk size and embedding model
 
 Same questions and corpus, one change at a time (`--tag` reports in `eval/results/`).
@@ -97,11 +142,8 @@ LOCAL_EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-mpnet-base-v
   EVAL_DATABASE_URL=... uv run python -m eval.run --tag mpnet-1000
 ```
 
-With Cohere, add the trial-key limits so ingestion and reranking wait instead of failing:
-
-```bash
-EMBEDDING_PROVIDER=cohere COHERE_API_KEY=... COHERE_TOKENS_PER_MINUTE=90000   COHERE_RERANK_REQUESTS_PER_MINUTE=10 EVAL_DATABASE_URL=... uv run python -m eval.run --rerank --tag cohere
-```
+With Cohere, see the command in [Cohere embeddings](#cohere-embeddings): it adds the trial-key
+limits so ingestion and reranking wait instead of failing.
 
 The runner wipes the database it is given and refuses any database whose name does not contain
 `eval`, `test` or `bench`. CI runs it on every pull request that touches `app/`, `eval/` or

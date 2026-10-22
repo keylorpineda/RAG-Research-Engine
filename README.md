@@ -36,6 +36,14 @@ right document. Hybrid beats both retrievers on every overall metric: lexical se
 English identifiers and fails on Spanish questions over English text, dense search is the
 other way around, and the fusion keeps both.
 
+**With Cohere embeddings and its reranker** the same benchmark reaches **Recall@5 0.879** and puts
+the exact passage first for 71% of the questions, 0.833 in Spanish:
+
+| Embeddings | Hybrid Recall@5 | Hybrid MRR@10 | + rerank Recall@5 | + rerank MRR@10 |
+| :-- | --: | --: | --: | --: |
+| Local MiniLM (no key, default) | 0.530 | 0.350 | | |
+| Cohere `embed-multilingual-v3.0` | 0.727 | 0.509 | **0.879** | **0.779** |
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/abstention-dark.svg">
   <img src="docs/assets/abstention-light.svg" alt="Threshold trade-off: at 0.55 the engine answers 91% of answerable questions and refuses 88% of unanswerable ones." width="100%">
