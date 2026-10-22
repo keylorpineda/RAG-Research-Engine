@@ -5,6 +5,7 @@ A prompt instruction ("say you don't know") is a request; a threshold on the evi
 and it can be calibrated and measured (see ``eval/``).
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
 
@@ -63,7 +64,7 @@ def answer_question(
     options: AnswerOptions,
     *,
     embeddings: EmbeddingProvider,
-    llm: LLMProvider,
+    llm: LLMProvider | Callable[[], LLMProvider],
     reranker: Reranker | None = None,
 ) -> Answer:
     retrieval = retrieve(
@@ -97,7 +98,9 @@ def answer_question(
             min_score=float("-inf"),
         )
     ]
-    raw = llm.complete(SYSTEM_PROMPT, build_user_prompt(question, [p.hit for p in passages]))
+    # Resolved only here: abstentions need no language model (nor its API key).
+    model = llm if isinstance(llm, LLMProvider) else llm()
+    raw = model.complete(SYSTEM_PROMPT, build_user_prompt(question, [p.hit for p in passages]))
     if not raw or raw.strip().strip(".").upper() == NO_ANSWER:
         return _log(
             db,

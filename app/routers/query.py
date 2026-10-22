@@ -33,7 +33,7 @@ def query(req: QueryRequest, db: DbSession) -> QueryResponse:
         question,
         options,
         embeddings=get_embedding_provider(),
-        llm=get_llm(),
+        llm=get_llm,
         reranker=get_reranker(),
     )
     return to_response(answer, min_similarity)
