@@ -30,7 +30,9 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/ragdb"
     groq_api_key: str = "changeme"
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "openai/gpt-oss-120b"
+    # Reasoning models only (gpt-oss): low keeps answers fast and the token budget for the answer.
+    groq_reasoning_effort: Literal["low", "medium", "high"] | None = "low"
     groq_max_output_tokens: int = 1024
     min_similarity: float | None = None
     cohere_api_key: str = "changeme"
