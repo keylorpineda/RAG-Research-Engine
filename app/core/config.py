@@ -14,8 +14,7 @@ COHERE_EMBEDDING_DIMS = {
 DEFAULT_MIN_SIMILARITY = {
     "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": 0.55,
     "sentence-transformers/paraphrase-multilingual-mpnet-base-v2": 0.52,
-    # Not calibrated yet (needs a Cohere key): run eval.run and set MIN_SIMILARITY.
-    "embed-multilingual-v3.0": 0.30,
+    "embed-multilingual-v3.0": 0.60,
 }
 FALLBACK_MIN_SIMILARITY = 0.30
 
@@ -40,6 +39,8 @@ class Settings(BaseSettings):
     cohere_embedding_model: str = "embed-multilingual-v3.0"
     # Trial keys allow 100,000 tokens per minute: set 90000 to stay under it while ingesting.
     cohere_tokens_per_minute: int | None = None
+    # Trial keys also allow 100 calls per minute (every question embedding is one call).
+    cohere_embed_requests_per_minute: int | None = None
     local_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     model_cache_dir: str | None = None
     hnsw_ef_search: int = 100

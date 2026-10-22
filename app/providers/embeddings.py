@@ -52,6 +52,7 @@ class CohereEmbeddings:
         client: httpx.Client | None = None,
         sleep: Callable[[float], None] | None = None,
         budget: TokenBudget | None = None,
+        call_budget: TokenBudget | None = None,
     ) -> None:
         if model not in COHERE_DIMS:
             raise ValueError(f"Unknown Cohere embedding model: {model}")
@@ -63,6 +64,7 @@ class CohereEmbeddings:
         )
         self._sleep = sleep
         self._budget = budget
+        self._call_budget = call_budget  # counts requests, not tokens
 
     def embed_documents(self, texts: Sequence[str]) -> list[Vector]:
         vectors: list[Vector] = []
@@ -78,6 +80,8 @@ class CohereEmbeddings:
             waited = self._budget.acquire(sum(estimate_tokens(t) for t in texts))
             if waited:
                 logger.info("Waited %.1f s for the Cohere token budget", waited)
+        if self._call_budget is not None:
+            self._call_budget.acquire(1)
         payload = {
             "model": self._model,
             "texts": list(texts),
@@ -141,7 +145,13 @@ def build_embedding_provider(config: Settings) -> EmbeddingProvider:
     budget = (
         TokenBudget(config.cohere_tokens_per_minute) if config.cohere_tokens_per_minute else None
     )
-    return CohereEmbeddings(config.cohere_api_key, config.cohere_embedding_model, budget=budget)
+    calls = config.cohere_embed_requests_per_minute
+    return CohereEmbeddings(
+        config.cohere_api_key,
+        config.cohere_embedding_model,
+        budget=budget,
+        call_budget=TokenBudget(calls) if calls else None,
+    )
 
 
 @lru_cache(maxsize=1)
