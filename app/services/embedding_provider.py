@@ -17,7 +17,7 @@ def embed_batch(texts: list[str]) -> list[list[float]]:
         "Authorization": f"Bearer {settings.cohere_api_key}",
         "Content-Type": "application/json",
     }
-    
+
     payload = {
         "model": settings.cohere_embedding_model,
         "texts": texts,

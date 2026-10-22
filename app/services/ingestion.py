@@ -1,7 +1,6 @@
 import logging
 import pathlib
 import threading
-import time
 from datetime import datetime
 
 from sqlalchemy.orm import Session
@@ -13,22 +12,22 @@ from app.services import chunking, embedding_provider, text_extractor
 
 logger = logging.getLogger(__name__)
 
-_worker_thread: threading.Thread | None = None
 _stop_event = threading.Event()
+_workers: list[threading.Thread] = []
 
 
 def start_background_ingestion() -> None:
-    global _worker_thread
     _stop_event.clear()
-    _worker_thread = threading.Thread(target=_loop, daemon=True, name="ingestion-worker")
-    _worker_thread.start()
+    worker = threading.Thread(target=_loop, daemon=True, name="ingestion-worker")
+    worker.start()
+    _workers.append(worker)
     logger.info("Ingestion background worker started.")
 
 
 def stop_background_ingestion() -> None:
     _stop_event.set()
-    if _worker_thread:
-        _worker_thread.join(timeout=5)
+    while _workers:
+        _workers.pop().join(timeout=5)
 
 
 def _loop() -> None:
@@ -73,7 +72,7 @@ def _ingest_document(db: Session, doc: Document) -> None:
         uploads_dir = pathlib.Path(settings.uploads_dir)
         uploads_dir.mkdir(parents=True, exist_ok=True)
 
-        chunk_entities = []
+        chunk_entities: list[DocChunk] = []
         for idx, chunk_text in enumerate(chunks_text):
             c = DocChunk(
                 document_id=doc.id,
@@ -86,14 +85,14 @@ def _ingest_document(db: Session, doc: Document) -> None:
         db.add_all(chunk_entities)
         db.flush()
 
-        embedding_entities = []
+        embedding_entities: list[Embedding] = []
         batch_size = 90
         for i in range(0, len(chunk_entities), batch_size):
             batch_objects = chunk_entities[i : i + batch_size]
             batch_texts = [c.text for c in batch_objects]
             vectors = embedding_provider.embed_batch(batch_texts)
-            
-            for chunk_obj, vec in zip(batch_objects, vectors):
+
+            for chunk_obj, vec in zip(batch_objects, vectors, strict=True):
                 embedding_entities.append(Embedding(chunk_id=chunk_obj.id, vector=vec))
 
         db.add_all(embedding_entities)
@@ -102,7 +101,9 @@ def _ingest_document(db: Session, doc: Document) -> None:
         job.status = "DONE"
         job.finished_at = datetime.utcnow()
         db.commit()
-        logger.info("Finished ingestion job %s for document %s. Status set to READY", job.id, doc.id)
+        logger.info(
+            "Finished ingestion job %s for document %s. Status set to READY", job.id, doc.id
+        )
 
     except Exception as exc:
         db.rollback()
@@ -111,4 +112,6 @@ def _ingest_document(db: Session, doc: Document) -> None:
         job.error = str(exc)
         job.finished_at = datetime.utcnow()
         db.commit()
-        logger.error("Ingestion job %s failed for document %s: %s", job.id, doc.id, exc, exc_info=True)
+        logger.error(
+            "Ingestion job %s failed for document %s: %s", job.id, doc.id, exc, exc_info=True
+        )
