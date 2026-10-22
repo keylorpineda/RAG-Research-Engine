@@ -40,6 +40,8 @@ add hybrid search and abstention, and prove every change with a reproducible ben
 - The language model runs at temperature 0 with a short grounded prompt (#8).
 - Every error response is `{"error": {"code", "message", "requestId"}}` (#2).
 - The desktop client shows abstentions, numbered citations and the retrieval mode (#11).
+- README rebuilt around three cards (hero, results, how it works) in the *Deep Ink* palette of the
+  web app design, generated from the committed results (#47).
 - Database driver: psycopg 3 (`postgresql://` URLs keep working) (#5).
 - `EMBEDDING_PROVIDER` defaults to `local`; the Docker image includes the local model runtime
   and keeps the model in a `models` volume. Set `EMBEDDING_PROVIDER=cohere` to keep using
