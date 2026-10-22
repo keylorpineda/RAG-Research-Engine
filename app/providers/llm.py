@@ -20,26 +20,31 @@ class LLMProvider(Protocol):
     def complete(self, system: str, user: str) -> str: ...
 
 
-class GroqLLM:
-    """OpenAI-compatible chat completions on Groq. Temperature 0: same passages, same answer."""
+class ChatCompletionsLLM:
+    """Any OpenAI-compatible ``/chat/completions`` endpoint. Temperature 0: same passages, same
+    answer."""
 
     def __init__(
         self,
-        api_key: str,
-        model: str = "openai/gpt-oss-120b",
+        url: str,
+        model: str,
         *,
+        api_key: str | None = None,
+        label: str = "chat",
         max_tokens: int = 1024,
         reasoning_effort: str | None = None,
+        timeout: float = 60.0,
         client: httpx.Client | None = None,
         sleep: Callable[[float], None] | None = None,
     ) -> None:
-        self.name = f"groq:{model}"
+        self.name = f"{label}:{model}"
+        self._url = url
+        self._label = label
         self._model = model
         self._max_tokens = max_tokens
         self._reasoning_effort = reasoning_effort
-        self._client = client or httpx.Client(
-            timeout=60.0, headers={"Authorization": f"Bearer {api_key}"}
-        )
+        headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+        self._client = client or httpx.Client(timeout=timeout, headers=headers)
         self._sleep = sleep
 
     def complete(self, system: str, user: str) -> str:
@@ -55,13 +60,39 @@ class GroqLLM:
         if self._reasoning_effort:
             payload["reasoning_effort"] = self._reasoning_effort
         response = post_with_retries(
-            self._client, GROQ_URL, payload, provider="Groq chat", sleep=self._sleep
+            self._client, self._url, payload, provider=f"{self._label} chat", sleep=self._sleep
         )
         try:
             content = response.json()["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:
             raise UpstreamError("The language model provider returned no answer.") from exc
         return str(content or "").strip()
+
+
+class GroqLLM(ChatCompletionsLLM):
+    """Groq's hosted models."""
+
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "openai/gpt-oss-120b",
+        *,
+        max_tokens: int = 1024,
+        reasoning_effort: str | None = None,
+        client: httpx.Client | None = None,
+        sleep: Callable[[float], None] | None = None,
+    ) -> None:
+        super().__init__(
+            GROQ_URL,
+            model,
+            api_key=api_key,
+            label="Groq",
+            max_tokens=max_tokens,
+            reasoning_effort=reasoning_effort,
+            client=client,
+            sleep=sleep,
+        )
+        self.name = f"groq:{model}"
 
 
 def build_llm(config: Settings) -> LLMProvider:
