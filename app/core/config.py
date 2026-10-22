@@ -35,7 +35,8 @@ class Settings(BaseSettings):
     groq_max_output_tokens: int = 1024
     min_similarity: float | None = None
     cohere_api_key: str = "changeme"
-    embedding_provider: Literal["cohere", "local"] = "cohere"
+    # Local by default: the project runs with a single key (Groq). See docs/DECISIONS.md.
+    embedding_provider: Literal["cohere", "local"] = "local"
     cohere_embedding_model: str = "embed-multilingual-v3.0"
     local_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     model_cache_dir: str | None = None

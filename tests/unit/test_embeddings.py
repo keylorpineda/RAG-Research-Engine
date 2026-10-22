@@ -106,6 +106,10 @@ def test_cohere_without_a_key_is_not_configured() -> None:
         build_embedding_provider(Settings(embedding_provider="cohere", cohere_api_key="changeme"))
 
 
+def test_local_embeddings_are_the_default() -> None:
+    assert Settings.model_fields["embedding_provider"].default == "local"
+
+
 def test_local_provider_needs_no_key() -> None:
     provider = build_embedding_provider(Settings(embedding_provider="local", cohere_api_key=""))
     assert isinstance(provider, LocalEmbeddings)
