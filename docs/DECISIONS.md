@@ -75,11 +75,12 @@ remove that delay later.
 
 ## 6. A local embedding model for tests and the benchmark
 
-**Decision.** `EMBEDDING_PROVIDER=local` runs a multilingual ONNX model on the CPU through
-`fastembed`.
+**Decision.** `EMBEDDING_PROVIDER=local`, the default, runs a multilingual ONNX model on the
+CPU through `fastembed`. Cohere is one environment variable away.
 
-**Why.** The engine, the test suite and the benchmark run without any API key, and CI can
-check retrieval quality on every pull request.
+**Why.** The engine, the test suite and the benchmark run without an embeddings key, so the
+project starts with a single key (Groq, for the answers), and CI can check retrieval quality
+on every pull request.
 
 **Cost.** The small local model is weaker than Cohere's. The numbers in the README are for the
 local model, so they are a floor, not the engine's best case.
