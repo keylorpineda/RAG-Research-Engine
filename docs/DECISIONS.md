@@ -84,3 +84,17 @@ on every pull request.
 
 **Cost.** The small local model is weaker than Cohere's. The numbers in the README are for the
 local model, so they are a floor, not the engine's best case.
+
+## 7. Answers can come from a local model
+
+**Decision.** `LLM_PROVIDER=openai_compatible` sends the prompt to any OpenAI-compatible
+server (Ollama, llama.cpp) instead of Groq. Together with the local embeddings, the engine then
+runs with no API key and no network access.
+
+**Why.** Documents that cannot leave the machine (legal, medical, unpublished research) are a
+common reason to want retrieval with citations in the first place. Both local servers speak the
+same API as Groq, so it is one client with a different URL, not a second integration.
+
+**Cost.** A model small enough for a CPU answers slower (seconds per answer) and follows the
+citation format less reliably than a 120B hosted model. The answer benchmark (#34) measures
+how much.
