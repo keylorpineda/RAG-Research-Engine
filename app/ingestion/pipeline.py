@@ -16,9 +16,6 @@ from app.providers.embeddings import EmbeddingProvider
 
 logger = logging.getLogger(__name__)
 
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 200
-
 
 class EmptyDocumentError(ValueError):
     pass
@@ -27,7 +24,9 @@ class EmptyDocumentError(ValueError):
 def ingest_document(db: Session, document: Document, embeddings: EmbeddingProvider) -> int:
     """Extract, chunk and embed ``document``. Returns the number of chunks. Does not commit."""
     texts = chunking.chunk(
-        extract.extract(document.path, document.mime), size=CHUNK_SIZE, overlap=CHUNK_OVERLAP
+        extract.extract(document.path, document.mime),
+        size=settings.chunk_size,
+        overlap=settings.chunk_overlap,
     )
     if not texts:
         raise EmptyDocumentError("No text could be extracted from the document.")
