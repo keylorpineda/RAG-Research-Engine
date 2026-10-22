@@ -31,6 +31,21 @@ services:
     volumes:
       - uploads:/app/uploads
 
+  worker:
+    build: .
+    command: python -m app.worker
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/ragdb
+    depends_on:
+      api:
+        condition: service_started
+    volumes:
+      - uploads:/app/uploads
+    # Scale with: docker compose up --scale worker=3
+    stop_grace_period: 30s
+
 volumes:
   pg_data:
   uploads:
