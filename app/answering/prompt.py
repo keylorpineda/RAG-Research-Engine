@@ -26,4 +26,10 @@ def build_user_prompt(question: str, passages: Sequence[Hit]) -> str:
         f"[{n}] {p.filename} (chunk {p.chunk_index})\n{p.text.strip()}"
         for n, p in enumerate(passages, start=1)
     ]
-    return "Passages:\n\n" + "\n\n".join(blocks) + f"\n\nQuestion: {question.strip()}"
+    # The rules again, last: small local models follow what they read most recently.
+    reminder = (
+        "Answer from the passages above, citing each sentence as [n]."
+        f" If they do not contain the answer, reply {NO_ANSWER}."
+    )
+    passages_text = "\n\n".join(blocks)
+    return f"Passages:\n\n{passages_text}\n\nQuestion: {question.strip()}\n\n{reminder}"
