@@ -13,6 +13,8 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
+COPY alembic.ini ./
+COPY migrations ./migrations
 COPY app ./app
 
 RUN useradd --create-home --uid 1000 rag && mkdir -p /app/uploads && chown rag /app/uploads

@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15
+    image: pgvector/pgvector:pg17
     environment:
       POSTGRES_DB: ragdb
       POSTGRES_USER: postgres
@@ -9,18 +9,25 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ragdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api:
     build: .
+    # Migrations run before the API starts; they are idempotent.
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/ragdb
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/ragdb
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - uploads:/app/uploads
 

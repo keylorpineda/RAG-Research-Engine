@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Protocol
 
 import httpx
 
-from app.core.config import Settings, settings
+from app.core.config import COHERE_EMBEDDING_DIMS, LOCAL_EMBEDDING_DIMS, Settings, settings
 from app.core.errors import ProviderNotConfiguredError, UpstreamError
 from app.providers.http import post_with_retries
 
@@ -35,12 +35,7 @@ class EmbeddingProvider(Protocol):
 
 
 COHERE_EMBED_URL = "https://api.cohere.com/v1/embed"
-COHERE_DIMS = {
-    "embed-multilingual-v3.0": 1024,
-    "embed-english-v3.0": 1024,
-    "embed-multilingual-light-v3.0": 384,
-    "embed-english-light-v3.0": 384,
-}
+COHERE_DIMS = COHERE_EMBEDDING_DIMS
 
 
 class CohereEmbeddings:
@@ -93,11 +88,7 @@ class CohereEmbeddings:
         return [[float(v) for v in vector] for vector in vectors]
 
 
-LOCAL_DIMS = {
-    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": 384,
-    "sentence-transformers/paraphrase-multilingual-mpnet-base-v2": 768,
-    "intfloat/multilingual-e5-large": 1024,
-}
+LOCAL_DIMS = LOCAL_EMBEDDING_DIMS
 
 
 class LocalEmbeddings:
