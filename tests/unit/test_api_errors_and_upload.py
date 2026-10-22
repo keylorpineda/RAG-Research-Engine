@@ -13,6 +13,7 @@ from app.models.models import Document
 from app.retrieval.dense import Hit
 from app.retrieval.retriever import Candidate
 from app.routers import query as query_route
+from app.routers import upload as upload_route
 
 
 class FakeSession:
@@ -20,12 +21,16 @@ class FakeSession:
 
     def __init__(self) -> None:
         self.added: list[Any] = []
+        self.queued: list[Any] = []
         self.rolled_back = False
 
     def add_all(self, objects: list[Any]) -> None:
         for i, obj in enumerate(objects, start=len(self.added) + 1):
             obj.id = i
         self.added.extend(objects)
+
+    def flush(self) -> None:
+        pass
 
     def commit(self) -> None:
         pass
@@ -50,8 +55,10 @@ def uploads(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
 
 @pytest.fixture
-def client(session: FakeSession) -> Iterator[TestClient]:
+def client(session: FakeSession, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
     app.dependency_overrides[get_db] = lambda: session
+    # Queueing is covered by the integration tests; here it only records the documents.
+    monkeypatch.setattr(upload_route.queue, "enqueue", lambda _db, doc: session.queued.append(doc))
     # No `with`: the lifespan (ingestion worker) is not started in unit tests.
     yield TestClient(app, raise_server_exceptions=False)
     app.dependency_overrides.clear()
@@ -77,6 +84,7 @@ def test_upload_cannot_escape_the_upload_directory(
     assert stored.parent == uploads.resolve()
     assert stored.name != "evil.txt"  # server-generated name
     assert stored.read_bytes() == b"hello"
+    assert session.queued == [doc]
     assert not (uploads.parent / "evil.txt").exists()
 
 

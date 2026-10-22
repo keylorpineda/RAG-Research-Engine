@@ -52,9 +52,7 @@ class Document(Base):
     chunks: Mapped[list[DocChunk]] = relationship(
         back_populates="document", cascade="all, delete-orphan", order_by="DocChunk.chunk_index"
     )
-    jobs: Mapped[list[JobLog]] = relationship(
-        back_populates="document", cascade="all, delete-orphan"
-    )
+    jobs: Mapped[list[Job]] = relationship(back_populates="document", cascade="all, delete-orphan")
 
 
 class DocChunk(Base):
@@ -86,13 +84,27 @@ class DocChunk(Base):
     document: Mapped[Document] = relationship(back_populates="chunks")
 
 
-class JobLog(Base):
+class Job(Base):
+    """An ingestion job. The table is the queue: workers claim rows with SKIP LOCKED."""
+
     __tablename__ = "jobs"
+    __table_args__ = (
+        Index(
+            "ix_jobs_claimable",
+            "status",
+            "run_after",
+            postgresql_where=text("status IN ('PENDING', 'RUNNING')"),
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     document_id: Mapped[int | None] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"))
-    type: Mapped[str] = mapped_column(String(50))
+    type: Mapped[str] = mapped_column(String(50), default="INGEST")
     status: Mapped[str] = mapped_column(job_status_type, default=JobStatus.PENDING)
+    attempts: Mapped[int] = mapped_column(default=0, server_default=text("0"))
+    run_after: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=text("NOW()"))
+    locked_by: Mapped[str | None] = mapped_column(String(100))
+    locked_until: Mapped[datetime | None] = mapped_column(TIMESTAMP)
     started_at: Mapped[datetime | None] = mapped_column(TIMESTAMP)
     finished_at: Mapped[datetime | None] = mapped_column(TIMESTAMP)
     error: Mapped[str | None] = mapped_column(Text)

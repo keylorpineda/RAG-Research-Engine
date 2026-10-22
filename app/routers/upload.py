@@ -5,10 +5,11 @@ from fastapi import APIRouter, File, UploadFile, status
 
 from app.core.config import settings
 from app.core.errors import BadRequestError
+from app.ingestion import queue
+from app.ingestion.storage import StoredFile, save_upload
 from app.models.database import DbSession
 from app.models.models import Document, DocumentStatus
 from app.schemas import UploadOut
-from app.services.storage import StoredFile, save_upload
 
 router = APIRouter(prefix="/api", tags=["upload"])
 
@@ -35,6 +36,9 @@ async def upload(files: Annotated[list[UploadFile], File()], db: DbSession) -> U
             for s in stored
         ]
         db.add_all(documents)
+        db.flush()
+        for document in documents:
+            queue.enqueue(db, document)
         db.commit()
     except BaseException:
         # All or nothing: a rejected file removes the ones already written by this request.

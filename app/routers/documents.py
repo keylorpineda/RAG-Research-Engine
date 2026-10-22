@@ -3,7 +3,8 @@ import pathlib
 
 from fastapi import APIRouter
 
-from app.core.errors import NotFoundError
+from app.core.errors import BadRequestError, NotFoundError
+from app.ingestion import queue
 from app.models.database import DbSession
 from app.models.models import Document
 from app.schemas import DocumentDetailOut, DocumentOut, MessageOut
@@ -41,3 +42,13 @@ def delete_document(doc_id: int, db: DbSession) -> MessageOut:
     db.delete(doc)
     db.commit()
     return MessageOut(message="Document deleted")
+
+
+@router.post("/documents/{doc_id}/reingest", status_code=202)
+def reingest_document(doc_id: int, db: DbSession) -> MessageOut:
+    """Queue the document again, for example after changing the embedding model."""
+    doc = _get_or_404(db, doc_id)
+    if queue.enqueue(db, doc) is None:
+        raise BadRequestError("The document is already queued or being processed.")
+    db.commit()
+    return MessageOut(message="Document queued for ingestion")
