@@ -1,15 +1,14 @@
 import re
-from typing import List
 
 
-def chunk(text: str, size: int = 1000, overlap: int = 200) -> List[str]:
+def chunk(text: str, size: int = 1000, overlap: int = 200) -> list[str]:
     if not text or not text.strip():
         return []
 
     normalized = text.replace("\r", "")
     paragraphs = re.split(r"\n\n+", normalized)
     current = ""
-    out: List[str] = []
+    out: list[str] = []
 
     for raw in paragraphs:
         paragraph = raw.strip()
@@ -30,12 +29,12 @@ def approx_tokens(text: str) -> int:
     return max(1, len(text) // 4)
 
 
-def _split_paragraph(paragraph: str, size: int) -> List[str]:
+def _split_paragraph(paragraph: str, size: int) -> list[str]:
     if len(paragraph) <= size:
         return [paragraph]
 
     words = paragraph.split()
-    segments: List[str] = []
+    segments: list[str] = []
     current = ""
 
     for word in words:
@@ -68,8 +67,8 @@ def _split_paragraph(paragraph: str, size: int) -> List[str]:
 
 
 def _append_segment(
-    out: List[str], current: str, segment: str, size: int, overlap: int
-) -> tuple:
+    out: list[str], current: str, segment: str, size: int, overlap: int
+) -> tuple[str, list[str]]:
     if len(segment) > size:
         start = 0
         while start < len(segment):

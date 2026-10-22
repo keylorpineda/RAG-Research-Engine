@@ -1,16 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
+import logging
 import pathlib
+from typing import Any
 
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException
 
-from app.models.database import get_db
+from app.models.database import DbSession
 from app.models.models import Document
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["documents"])
 
 
 @router.get("/documents")
-def list_documents(db: Session = Depends(get_db)):
+def list_documents(db: DbSession) -> list[dict[str, Any]]:
     docs = db.query(Document).order_by(Document.id).all()
     return [
         {
@@ -26,7 +28,7 @@ def list_documents(db: Session = Depends(get_db)):
 
 
 @router.get("/documents/{doc_id}")
-def get_document(doc_id: int, db: Session = Depends(get_db)):
+def get_document(doc_id: int, db: DbSession) -> dict[str, Any]:
     doc = db.query(Document).filter(Document.id == doc_id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -50,19 +52,16 @@ def get_document(doc_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/documents/{doc_id}")
-def delete_document(doc_id: int, db: Session = Depends(get_db)):
+def delete_document(doc_id: int, db: DbSession) -> dict[str, str]:
     doc = db.query(Document).filter(Document.id == doc_id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
-    
+
     try:
-        path = pathlib.Path(doc.path)
-        if path.exists():
-            path.unlink()
-    except Exception:
-        pass
-        
+        pathlib.Path(doc.path).unlink(missing_ok=True)
+    except OSError:
+        logger.warning("Could not delete file for document %s", doc.id, exc_info=True)
+
     db.delete(doc)
     db.commit()
     return {"message": "Document deleted"}
-

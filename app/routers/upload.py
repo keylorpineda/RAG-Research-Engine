@@ -1,12 +1,11 @@
 import pathlib
-import shutil
 import uuid
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.core.config import settings
-from app.models.database import get_db
+from app.models.database import DbSession
 from app.models.models import Document
 
 router = APIRouter(prefix="/api", tags=["upload"])
@@ -17,7 +16,7 @@ MAX_FILE_SIZE = 20 * 1024 * 1024
 
 
 @router.post("/upload")
-async def upload(files: list[UploadFile] = File(...), db: Session = Depends(get_db)):
+async def upload(files: Annotated[list[UploadFile], File(...)], db: DbSession) -> dict[str, Any]:
     if not files:
         raise HTTPException(status_code=400, detail="No files provided.")
     if len(files) > MAX_FILES:

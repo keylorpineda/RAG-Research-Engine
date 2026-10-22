@@ -1,25 +1,26 @@
-import enum
+from __future__ import annotations
 
-from sqlalchemy import (
-    BigInteger, Column, Enum, ForeignKey, Integer,
-    String, Text, text,
-)
+import enum
+from datetime import datetime
+from typing import Any
+
+from sqlalchemy import BigInteger, Enum, ForeignKey, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP
-from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
     pass
 
 
-class DocumentStatus(str, enum.Enum):
+class DocumentStatus(enum.StrEnum):
     PENDING = "PENDING"
     PROCESSING = "PROCESSING"
     READY = "READY"
     ERROR = "ERROR"
 
 
-class JobStatus(str, enum.Enum):
+class JobStatus(enum.StrEnum):
     PENDING = "PENDING"
     RUNNING = "RUNNING"
     DONE = "DONE"
@@ -27,73 +28,73 @@ class JobStatus(str, enum.Enum):
 
 
 doc_status_type = Enum(
-    "PENDING", "PROCESSING", "READY", "ERROR",
-    name="doc_status",
-    create_type=False,
+    "PENDING", "PROCESSING", "READY", "ERROR", name="doc_status", create_type=False
 )
-job_status_type = Enum(
-    "PENDING", "RUNNING", "DONE", "ERROR",
-    name="job_status",
-    create_type=False,
-)
+job_status_type = Enum("PENDING", "RUNNING", "DONE", "ERROR", name="job_status", create_type=False)
 
 
 class Document(Base):
     __tablename__ = "documents"
 
-    id = Column(Integer, primary_key=True)
-    filename = Column(String(255), nullable=False)
-    mime = Column(String(100))
-    upload_ts = Column(TIMESTAMP, server_default=text("NOW()"), nullable=False)
-    path = Column(String(500), nullable=False)
-    size = Column(BigInteger)
-    status = Column(doc_status_type, nullable=False, default="PENDING")
+    id: Mapped[int] = mapped_column(primary_key=True)
+    filename: Mapped[str] = mapped_column(String(255))
+    mime: Mapped[str | None] = mapped_column(String(100))
+    upload_ts: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=text("NOW()"))
+    path: Mapped[str] = mapped_column(String(500))
+    size: Mapped[int | None] = mapped_column(BigInteger)
+    status: Mapped[str] = mapped_column(doc_status_type, default=DocumentStatus.PENDING)
 
-    chunks = relationship("DocChunk", back_populates="document", cascade="all, delete-orphan")
-    jobs = relationship("JobLog", back_populates="document", cascade="all, delete-orphan")
+    chunks: Mapped[list[DocChunk]] = relationship(
+        back_populates="document", cascade="all, delete-orphan"
+    )
+    jobs: Mapped[list[JobLog]] = relationship(
+        back_populates="document", cascade="all, delete-orphan"
+    )
 
 
 class DocChunk(Base):
     __tablename__ = "doc_chunks"
 
-    id = Column(Integer, primary_key=True)
-    document_id = Column(Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
-    chunk_index = Column(Integer, nullable=False)
-    text = Column(Text, nullable=False)
-    token_count = Column(Integer, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"))
+    chunk_index: Mapped[int]
+    text: Mapped[str] = mapped_column(Text)
+    token_count: Mapped[int]
 
-    document = relationship("Document", back_populates="chunks")
-    embedding = relationship("Embedding", back_populates="chunk", uselist=False, cascade="all, delete-orphan")
+    document: Mapped[Document] = relationship(back_populates="chunks")
+    embedding: Mapped[Embedding | None] = relationship(
+        back_populates="chunk", cascade="all, delete-orphan"
+    )
 
 
 class Embedding(Base):
     __tablename__ = "embeddings"
 
-    id = Column(Integer, primary_key=True)
-    chunk_id = Column(Integer, ForeignKey("doc_chunks.id", ondelete="CASCADE"), nullable=False)
-    vector = Column(JSONB, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    chunk_id: Mapped[int] = mapped_column(ForeignKey("doc_chunks.id", ondelete="CASCADE"))
+    vector: Mapped[Any] = mapped_column(JSONB)
 
-    chunk = relationship("DocChunk", back_populates="embedding")
+    chunk: Mapped[DocChunk] = relationship(back_populates="embedding")
 
 
 class JobLog(Base):
     __tablename__ = "jobs"
 
-    id = Column(Integer, primary_key=True)
-    document_id = Column(Integer, ForeignKey("documents.id", ondelete="CASCADE"))
-    type = Column(String(50), nullable=False)
-    status = Column(job_status_type, nullable=False, default="PENDING")
-    started_at = Column(TIMESTAMP)
-    finished_at = Column(TIMESTAMP)
-    error = Column(Text)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    document_id: Mapped[int | None] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"))
+    type: Mapped[str] = mapped_column(String(50))
+    status: Mapped[str] = mapped_column(job_status_type, default=JobStatus.PENDING)
+    started_at: Mapped[datetime | None] = mapped_column(TIMESTAMP)
+    finished_at: Mapped[datetime | None] = mapped_column(TIMESTAMP)
+    error: Mapped[str | None] = mapped_column(Text)
 
-    document = relationship("Document", back_populates="jobs")
+    document: Mapped[Document | None] = relationship(back_populates="jobs")
 
 
 class QueryLog(Base):
     __tablename__ = "queries"
 
-    id = Column(Integer, primary_key=True)
-    query_text = Column(Text, nullable=False)
-    ts = Column(TIMESTAMP, server_default=text("NOW()"), nullable=False)
-    result_refs = Column(JSONB)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    query_text: Mapped[str] = mapped_column(Text)
+    ts: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=text("NOW()"))
+    result_refs: Mapped[Any] = mapped_column(JSONB, nullable=True)

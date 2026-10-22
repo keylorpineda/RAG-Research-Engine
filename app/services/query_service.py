@@ -1,22 +1,30 @@
 import json
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.models import DocChunk, Document, Embedding, QueryLog
-
 from app.services import embedding_provider, llm_provider, similarity
 
 
-from sqlalchemy.orm import joinedload
-
-def ask(db: Session, question: str, top_k: int = 5, threshold: float = 0.7, max_tokens: int = 4000) -> dict:
+def ask(
+    db: Session, question: str, top_k: int = 5, threshold: float = 0.7, max_tokens: int = 4000
+) -> dict[str, Any]:
     query_vector = embedding_provider.embed(question)
 
-    chunks = db.query(DocChunk).options(joinedload(DocChunk.document)).join(Document).filter(Document.status == "READY").all()
+    chunks = (
+        db.query(DocChunk)
+        .options(joinedload(DocChunk.document))
+        .join(Document)
+        .filter(Document.status == "READY")
+        .all()
+    )
     chunks_by_id = {c.id: c for c in chunks}
 
-    embeddings = db.query(Embedding).join(DocChunk).join(Document).filter(Document.status == "READY").all()
+    embeddings = (
+        db.query(Embedding).join(DocChunk).join(Document).filter(Document.status == "READY").all()
+    )
 
     now = datetime.utcnow()
     scored: list[tuple[DocChunk, float]] = []
@@ -26,17 +34,21 @@ def ask(db: Session, question: str, top_k: int = 5, threshold: float = 0.7, max_
             continue
         vector = emb.vector if isinstance(emb.vector, list) else json.loads(emb.vector)
         sim_score = similarity.cosine(query_vector, vector)
-        
-        days_old = (now - chunk.document.upload_ts).days if chunk.document and chunk.document.upload_ts else 0
+
+        days_old = (
+            (now - chunk.document.upload_ts).days
+            if chunk.document and chunk.document.upload_ts
+            else 0
+        )
         recency_factor = max(0.0, 1.0 - (days_old / 365.0))
         final_score = (sim_score * 0.8) + (recency_factor * 0.2)
-        
+
         if final_score >= threshold:
             scored.append((chunk, final_score))
 
     scored.sort(key=lambda x: x[1], reverse=True)
-    
-    top = []
+
+    top: list[tuple[DocChunk, float]] = []
     current_tokens = 0
     for chunk, score in scored:
         if len(top) >= top_k:
@@ -71,7 +83,6 @@ Pregunta del Usuario: {question}"""
     answer = llm_provider.chat(prompt)
     if not answer or not answer.strip():
         answer = "The Research Engine returned an empty response. This might be due to safety filters or context issues."
-
 
     references = [
         {

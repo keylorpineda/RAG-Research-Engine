@@ -16,9 +16,7 @@ def chat(prompt: str) -> str:
 
     payload = {
         "model": settings.groq_model,
-        "messages": [
-            {"role": "user", "content": prompt}
-        ],
+        "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.7,
         "max_tokens": settings.groq_max_output_tokens,
     }
@@ -29,7 +27,7 @@ def chat(prompt: str) -> str:
 
     data = response.json()
     choices = data.get("choices", [])
-    if choices and len(choices) > 0:
-        return choices[0].get("message", {}).get("content", "")
+    if choices:
+        return str(choices[0].get("message", {}).get("content", ""))
 
     return ""
