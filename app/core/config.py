@@ -12,7 +12,13 @@ class Settings(BaseSettings):
     cohere_embedding_model: str = "embed-multilingual-v3.0"
     cohere_embedding_input_type: str = "search_document"
     uploads_dir: str = "uploads"
+    max_upload_mb: int = 20
+    max_files_per_upload: int = 10
     ingestion_poll_interval_ms: int = 2000
+
+    @property
+    def max_upload_bytes(self) -> int:
+        return self.max_upload_mb * 1024 * 1024
 
 
 settings = Settings()
