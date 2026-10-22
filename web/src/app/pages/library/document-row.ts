@@ -68,7 +68,7 @@ export class DocumentRow {
     const d = this.doc();
     const parts: string[] = [];
     if (d.size != null) parts.push(this.i18n.bytes(d.size));
-    if (d.status === 'READY') parts.push(this.i18n.format(this.t().passages, { n: d.chunkCount }));
+    if (d.status === 'READY') parts.push(this.i18n.count(this.t().passages, d.chunkCount));
     if (d.uploadTs) parts.push(this.i18n.relative(d.uploadTs));
     return parts.join(' · ');
   });

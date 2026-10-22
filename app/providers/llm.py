@@ -26,15 +26,17 @@ class GroqLLM:
     def __init__(
         self,
         api_key: str,
-        model: str = "llama-3.3-70b-versatile",
+        model: str = "openai/gpt-oss-120b",
         *,
         max_tokens: int = 1024,
+        reasoning_effort: str | None = None,
         client: httpx.Client | None = None,
         sleep: Callable[[float], None] | None = None,
     ) -> None:
         self.name = f"groq:{model}"
         self._model = model
         self._max_tokens = max_tokens
+        self._reasoning_effort = reasoning_effort
         self._client = client or httpx.Client(
             timeout=60.0, headers={"Authorization": f"Bearer {api_key}"}
         )
@@ -50,6 +52,8 @@ class GroqLLM:
             "temperature": 0,
             "max_tokens": self._max_tokens,
         }
+        if self._reasoning_effort:
+            payload["reasoning_effort"] = self._reasoning_effort
         response = post_with_retries(
             self._client, GROQ_URL, payload, provider="Groq chat", sleep=self._sleep
         )
@@ -63,7 +67,12 @@ class GroqLLM:
 def build_llm(config: Settings) -> LLMProvider:
     if not config.groq_api_key or config.groq_api_key.strip().lower() == "changeme":
         raise ProviderNotConfiguredError("The language model provider is not configured.")
-    return GroqLLM(config.groq_api_key, config.groq_model, max_tokens=config.groq_max_output_tokens)
+    return GroqLLM(
+        config.groq_api_key,
+        config.groq_model,
+        max_tokens=config.groq_max_output_tokens,
+        reasoning_effort=config.groq_reasoning_effort,
+    )
 
 
 @lru_cache(maxsize=1)
