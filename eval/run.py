@@ -43,8 +43,10 @@ from app.core.config import Settings, settings
 from app.ingestion.pipeline import ingest_document
 from app.models.models import Document, DocumentStatus
 from app.providers.embeddings import EmbeddingProvider, get_embedding_provider
+from app.providers.llm import get_llm
 from app.providers.rerank import Reranker, build_reranker
 from app.retrieval.retriever import RetrievalMode, retrieve
+from app.retrieval.translation import QueryTranslator
 from eval.corpus import PEPS_COMMIT, fetch
 
 ROOT = Path(__file__).parent
@@ -165,12 +167,22 @@ def evaluate_mode(
     mode: RetrievalMode,
     embeddings: EmbeddingProvider,
     reranker: Reranker | None,
+    translator: QueryTranslator | None = None,
 ) -> dict[str, Any]:
     per_question: dict[str, dict[str, float]] = {}
     latencies: list[float] = []
     for q in questions:
         start = time.perf_counter()
-        result = retrieve(db, q.question, mode=mode, k=K, embeddings=embeddings, reranker=reranker)
+        lexical_query = translator.for_lexical(q.question) if translator else None
+        result = retrieve(
+            db,
+            q.question,
+            mode=mode,
+            k=K,
+            embeddings=embeddings,
+            reranker=reranker,
+            lexical_query=lexical_query,
+        )
         latencies.append((time.perf_counter() - start) * 1000)
         assert q.doc
         per_question[q.id] = ranking_metrics(
@@ -291,6 +303,11 @@ def check_regression(report: dict[str, Any], baseline: dict[str, Any]) -> list[s
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--rerank", action="store_true", help="also run hybrid + Cohere rerank")
+    parser.add_argument(
+        "--translate",
+        action="store_true",
+        help="also run lexical and hybrid with translated questions (needs the LLM)",
+    )
     parser.add_argument("--write-baseline", action="store_true")
     parser.add_argument("--check", action="store_true", help="fail on regression vs baseline")
     parser.add_argument("--tag", help="also save the report as results/<tag>.json")
@@ -324,6 +341,20 @@ def main() -> int:
                 embeddings=embeddings,
                 reranker=reranker,
             )
+        if args.translate:
+            translator = QueryTranslator(get_llm)
+            for mode in (RetrievalMode.LEXICAL, RetrievalMode.HYBRID):
+                # Latency includes the translation, a model call per new question (then cached).
+                modes[f"{mode.value}+translation"] = evaluate_mode(
+                    db,
+                    answerable,
+                    relevant=relevant,
+                    mode=mode,
+                    embeddings=embeddings,
+                    reranker=None,
+                    translator=translator,
+                )
+                print(f"{mode.value}+translation: {modes[f'{mode.value}+translation']['all']}")
         abstention = abstention_sweep(db, questions, embeddings)
 
     report = {
