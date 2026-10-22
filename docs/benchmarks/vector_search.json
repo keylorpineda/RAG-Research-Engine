@@ -1,0 +1,47 @@
+{
+  "dim": 384,
+  "data": "synthetic, clustered (n/50 centroids, noise 0.6); queries = stored vector + noise 0.3",
+  "k": 10,
+  "hnsw": {
+    "m": 16,
+    "ef_construction": 64,
+    "ef_search": 100
+  },
+  "postgres": "16.2",
+  "pgvector": "0.6.2",
+  "machine": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "os": "Windows-11",
+  "results": [
+    {
+      "chunks": 1000,
+      "legacy_python_p50_ms": 783.9,
+      "legacy_python_p95_ms": 824.6,
+      "pgvector_exact_p50_ms": 3.19,
+      "pgvector_exact_p95_ms": 4.43,
+      "pgvector_hnsw_p50_ms": 3.94,
+      "pgvector_hnsw_p95_ms": 4.72,
+      "hnsw_recall_at_10": 1.0
+    },
+    {
+      "chunks": 10000,
+      "legacy_python_p50_ms": 7558.2,
+      "legacy_python_p95_ms": 7835.3,
+      "pgvector_exact_p50_ms": 10.87,
+      "pgvector_exact_p95_ms": 12.73,
+      "pgvector_hnsw_p50_ms": 4.24,
+      "pgvector_hnsw_p95_ms": 5.16,
+      "hnsw_recall_at_10": 1.0
+    },
+    {
+      "chunks": 50000,
+      "legacy_python_p50_ms": 38972.3,
+      "legacy_python_p95_ms": 42039.9,
+      "pgvector_exact_p50_ms": 189.64,
+      "pgvector_exact_p95_ms": 211.09,
+      "pgvector_hnsw_p50_ms": 10.46,
+      "pgvector_hnsw_p95_ms": 23.81,
+      "hnsw_recall_at_10": 1.0
+    }
+  ],
+  "threads": 12
+}
