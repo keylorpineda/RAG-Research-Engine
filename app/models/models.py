@@ -4,9 +4,12 @@ import enum
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, Enum, ForeignKey, String, Text, text
+from pgvector.sqlalchemy import Vector
+from sqlalchemy import BigInteger, Enum, ForeignKey, Index, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+from app.core.config import settings
 
 
 class Base(DeclarativeBase):
@@ -43,9 +46,11 @@ class Document(Base):
     path: Mapped[str] = mapped_column(String(500))
     size: Mapped[int | None] = mapped_column(BigInteger)
     status: Mapped[str] = mapped_column(doc_status_type, default=DocumentStatus.PENDING)
+    # Vectors from different models are not comparable: record which one produced them.
+    embedding_model: Mapped[str | None] = mapped_column(String(200))
 
     chunks: Mapped[list[DocChunk]] = relationship(
-        back_populates="document", cascade="all, delete-orphan"
+        back_populates="document", cascade="all, delete-orphan", order_by="DocChunk.chunk_index"
     )
     jobs: Mapped[list[JobLog]] = relationship(
         back_populates="document", cascade="all, delete-orphan"
@@ -54,27 +59,26 @@ class Document(Base):
 
 class DocChunk(Base):
     __tablename__ = "doc_chunks"
+    __table_args__ = (
+        Index(
+            "ix_doc_chunks_embedding_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_with={"m": 16, "ef_construction": 64},
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"))
+    document_id: Mapped[int] = mapped_column(
+        ForeignKey("documents.id", ondelete="CASCADE"), index=True
+    )
     chunk_index: Mapped[int]
     text: Mapped[str] = mapped_column(Text)
     token_count: Mapped[int]
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(settings.embedding_dim))
 
     document: Mapped[Document] = relationship(back_populates="chunks")
-    embedding: Mapped[Embedding | None] = relationship(
-        back_populates="chunk", cascade="all, delete-orphan"
-    )
-
-
-class Embedding(Base):
-    __tablename__ = "embeddings"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    chunk_id: Mapped[int] = mapped_column(ForeignKey("doc_chunks.id", ondelete="CASCADE"))
-    vector: Mapped[Any] = mapped_column(JSONB)
-
-    chunk: Mapped[DocChunk] = relationship(back_populates="embedding")
 
 
 class JobLog(Base):
