@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-10-22
+
 ### Fixed
 
 - Groq no longer serves `llama-3.3-70b-versatile` to new keys: the default model is now
@@ -123,7 +125,8 @@ python -m app.worker      # start at least one worker
 First prototype: FastAPI, Postgres with JSONB vectors, Cohere embeddings, Groq answers and the
 CustomTkinter desktop client.
 
-[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.0...develop
+[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.1...develop
+[2.1.1]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/keylorpineda/RAG-Research-Engine/releases/tag/v1.0.0
