@@ -6,6 +6,7 @@ export function ref(n: number, cited = true): Reference {
     docId: n,
     filename: `pep-${n}.txt`,
     chunkIndex: n * 2,
+    section: n === 1 ? 'Rationale' : null,
     score: 0.03,
     denseScore: 0.7,
     lexicalScore: 0.05,
