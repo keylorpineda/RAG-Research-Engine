@@ -54,6 +54,8 @@ class Settings(BaseSettings):
     uploads_dir: str = "uploads"
     max_upload_mb: int = 20
     max_files_per_upload: int = 10
+    # Off for a public demo: visitors ask about the documents already indexed.
+    uploads_enabled: bool = True
     # Ingestion worker (python -m app.worker). EMBEDDED_WORKER runs one inside the API process,
     # handy for a single-container setup.
     embedded_worker: bool = False

@@ -16,5 +16,8 @@ def health(db: DbSession) -> HealthOut:
         status="ok",
         embedding_model=settings.embedding_model,
         min_similarity=settings.abstain_threshold,
+        uploads_enabled=settings.uploads_enabled,
+        max_upload_mb=settings.max_upload_mb,
+        max_files_per_upload=settings.max_files_per_upload,
         jobs=queue_depth(db),
     )

@@ -33,6 +33,11 @@ class BadRequestError(AppError):
     code = "bad_request"
 
 
+class ForbiddenError(AppError):
+    status_code = 403
+    code = "forbidden"
+
+
 class NotFoundError(AppError):
     status_code = 404
     code = "not_found"

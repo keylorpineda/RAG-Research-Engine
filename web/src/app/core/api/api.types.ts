@@ -1,6 +1,6 @@
 /** Shapes returned by the FastAPI backend (app/schemas.py). JSON fields are camelCase. */
 
-export type DocumentStatus = 'pending' | 'processing' | 'ready' | 'failed';
+export type DocumentStatus = 'PENDING' | 'PROCESSING' | 'READY' | 'ERROR';
 
 export interface DocumentOut {
   id: number;
@@ -9,6 +9,7 @@ export interface DocumentOut {
   size: number | null;
   status: DocumentStatus;
   uploadTs: string | null;
+  chunkCount: number;
 }
 
 export interface ChunkOut {
@@ -35,6 +36,9 @@ export interface HealthOut {
   status: string;
   embeddingModel: string;
   minSimilarity: number;
+  uploadsEnabled: boolean;
+  maxUploadMb: number;
+  maxFilesPerUpload: number;
   jobs: Record<string, number>;
 }
 

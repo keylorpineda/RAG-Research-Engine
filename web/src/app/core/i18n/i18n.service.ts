@@ -59,6 +59,51 @@ export class I18nService {
     return this.numberFormats().integer.format(value);
   }
 
+  /** Fills `{key}` placeholders. Numbers are formatted for the current language. */
+  format(template: string, params: Record<string, string | number>): string {
+    return template.replace(/\{(\w+)\}/g, (match, key: string) => {
+      const value = params[key];
+      if (value === undefined) return match;
+      return typeof value === 'number' ? this.integer(value) : value;
+    });
+  }
+
+  bytes(size: number): string {
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let value = size;
+    let unit = 0;
+    while (value >= 1024 && unit < units.length - 1) {
+      value /= 1024;
+      unit += 1;
+    }
+    const digits = unit === 0 || value >= 10 ? 0 : 1;
+    const locale = this.lang() === 'es' ? 'es-CR' : 'en-US';
+    return `${value.toLocaleString(locale, { maximumFractionDigits: digits })} ${units[unit]}`;
+  }
+
+  /** "3 min ago" / "hace 3 min", from an ISO timestamp. */
+  relative(iso: string, now: number = Date.now()): string {
+    // The API sends UTC timestamps without an offset; read them as UTC, not local time.
+    const utc = /(?:[zZ]|[+-]\d\d:?\d\d)$/.test(iso) ? iso : `${iso}Z`;
+    const seconds = Math.round((new Date(utc).getTime() - now) / 1000);
+    if (Math.abs(seconds) < 45) return this.t().time.now;
+    const steps: [Intl.RelativeTimeFormatUnit, number][] = [
+      ['minute', 60],
+      ['hour', 3600],
+      ['day', 86400],
+      ['month', 2592000],
+      ['year', 31536000],
+    ];
+    let [unit, size] = steps[0];
+    for (const step of steps) {
+      if (Math.abs(seconds) >= step[1]) [unit, size] = step;
+    }
+    return new Intl.RelativeTimeFormat(this.lang(), { numeric: 'auto', style: 'short' }).format(
+      Math.round(seconds / size),
+      unit,
+    );
+  }
+
   private initialLang(): Lang {
     try {
       const saved = localStorage.getItem(LANG_STORAGE_KEY);

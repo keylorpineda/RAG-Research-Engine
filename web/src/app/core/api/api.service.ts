@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpEvent } from '@angular/common/http';
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 
@@ -41,6 +41,18 @@ export class ApiService {
     const form = new FormData();
     for (const file of files) form.append('files', file, file.name);
     return this.wrap(this.http.post<UploadOut>(this.url('/api/upload'), form));
+  }
+
+  /** One file per request, so each file reports its own upload progress. */
+  uploadWithProgress(file: File): Observable<HttpEvent<UploadOut>> {
+    const form = new FormData();
+    form.append('files', file, file.name);
+    return this.wrap(
+      this.http.post<UploadOut>(this.url('/api/upload'), form, {
+        observe: 'events',
+        reportProgress: true,
+      }),
+    );
   }
 
   deleteDocument(id: number): Observable<MessageOut> {

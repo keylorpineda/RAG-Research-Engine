@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, File, UploadFile, status
 
 from app.core.config import settings
-from app.core.errors import BadRequestError
+from app.core.errors import BadRequestError, ForbiddenError
 from app.ingestion import queue
 from app.ingestion.storage import StoredFile, save_upload
 from app.models.database import DbSession
@@ -16,6 +16,8 @@ router = APIRouter(prefix="/api", tags=["upload"])
 
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
 async def upload(files: Annotated[list[UploadFile], File()], db: DbSession) -> UploadOut:
+    if not settings.uploads_enabled:
+        raise ForbiddenError("Uploads are turned off on this server.")
     if len(files) > settings.max_files_per_upload:
         raise BadRequestError(f"Upload at most {settings.max_files_per_upload} files at a time.")
 
