@@ -14,6 +14,11 @@ def query(req: QueryRequest, db: DbSession) -> QueryResponse:
     if not question:
         raise BadRequestError("The question cannot be empty.")
     result = query_service.ask(
-        db, question, top_k=req.k, threshold=req.threshold, max_tokens=req.max_tokens
+        db,
+        question,
+        top_k=req.k,
+        threshold=req.threshold,
+        max_tokens=req.max_tokens,
+        mode=req.mode,
     )
     return QueryResponse.model_validate(result)

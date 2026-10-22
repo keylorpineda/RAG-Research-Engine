@@ -5,6 +5,8 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
+from app.retrieval.retriever import RetrievalMode
+
 
 class Schema(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, from_attributes=True)
@@ -46,6 +48,9 @@ class QueryRequest(Schema):
         default=0.3, ge=-1.0, le=1.0, description="Minimum cosine similarity of a passage."
     )
     max_tokens: int = Field(default=4000, ge=100, le=16000)
+    mode: RetrievalMode = Field(
+        default=RetrievalMode.HYBRID, description="dense, lexical or hybrid (RRF of both)."
+    )
 
 
 class Reference(Schema):
@@ -53,6 +58,8 @@ class Reference(Schema):
     filename: str
     chunk_index: int
     score: float
+    dense_score: float | None = None
+    lexical_score: float | None = None
     text: str
 
 
