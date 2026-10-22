@@ -1,51 +1,36 @@
-import json
 from typing import Any
 
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 
-from app.models.models import DocChunk, Document, Embedding, QueryLog
+from app.core.config import settings
+from app.models.models import QueryLog
 from app.providers.embeddings import get_embedding_provider
+from app.retrieval.dense import Hit, dense_search
 from app.retrieval.ranking import Scored, select_passages
-from app.services import llm_provider, similarity
+from app.services import llm_provider
+
+# Retrieve more than k so the token budget can skip long passages and still fill k slots.
+CANDIDATE_FACTOR = 4
 
 
 def ask(
     db: Session, question: str, top_k: int = 5, threshold: float = 0.3, max_tokens: int = 4000
 ) -> dict[str, Any]:
     query_vector = get_embedding_provider().embed_query(question)
-
-    chunks = (
-        db.query(DocChunk)
-        .options(joinedload(DocChunk.document))
-        .join(Document)
-        .filter(Document.status == "READY")
-        .all()
+    hits = dense_search(
+        db, query_vector, k=top_k * CANDIDATE_FACTOR, ef_search=settings.hnsw_ef_search
     )
-    chunks_by_id = {c.id: c for c in chunks}
-
-    embeddings = (
-        db.query(Embedding).join(DocChunk).join(Document).filter(Document.status == "READY").all()
+    selected = select_passages(
+        (Scored(h, h.score, h.token_count) for h in hits),
+        top_k=top_k,
+        max_tokens=max_tokens,
+        min_score=threshold,
     )
-
-    candidates: list[Scored[DocChunk]] = []
-    for emb in embeddings:
-        chunk = chunks_by_id.get(emb.chunk_id)
-        if chunk is None:
-            continue
-        vector = emb.vector if isinstance(emb.vector, list) else json.loads(emb.vector)
-        candidates.append(Scored(chunk, similarity.cosine(query_vector, vector), chunk.token_count))
-
-    top = [
-        (s.item, s.score)
-        for s in select_passages(
-            candidates, top_k=top_k, max_tokens=max_tokens, min_score=threshold
-        )
-    ]
+    top: list[tuple[Hit, float]] = [(s.item, s.score) for s in selected]
 
     context_parts = []
     for chunk, score in top:
-        filename = chunk.document.filename if chunk.document else "unknown"
-        context_parts.append(f"- [{filename}] (score: {score:.4f}): {chunk.text}")
+        context_parts.append(f"- [{chunk.filename}] (score: {score:.4f}): {chunk.text}")
     context = "\n".join(context_parts)
 
     prompt = f"""Eres el Senior AI Research Lead. Tu propósito es realizar análisis técnicos basados EXCLUSIVAMENTE en el contexto.
@@ -71,7 +56,7 @@ Pregunta del Usuario: {question}"""
     references = [
         {
             "docId": chunk.document_id,
-            "filename": chunk.document.filename if chunk.document else "unknown",
+            "filename": chunk.filename,
             "chunkIndex": chunk.chunk_index,
             "score": round(score, 6),
             "text": chunk.text,

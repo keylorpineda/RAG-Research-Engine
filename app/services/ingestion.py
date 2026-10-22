@@ -1,13 +1,13 @@
 import logging
 import pathlib
 import threading
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.database import SessionLocal
-from app.models.models import DocChunk, Document, Embedding, JobLog
+from app.models.models import DocChunk, Document, JobLog
 from app.providers.embeddings import get_embedding_provider
 from app.services import chunking, text_extractor
 
@@ -15,6 +15,11 @@ logger = logging.getLogger(__name__)
 
 _stop_event = threading.Event()
 _workers: list[threading.Thread] = []
+
+
+def _now() -> datetime:
+    """Naive UTC, matching the TIMESTAMP WITHOUT TIME ZONE columns."""
+    return datetime.now(UTC).replace(tzinfo=None)
 
 
 def start_background_ingestion() -> None:
@@ -56,7 +61,7 @@ def _ingest_document(db: Session, doc: Document) -> None:
         document_id=doc.id,
         type="INGEST",
         status="RUNNING",
-        started_at=datetime.utcnow(),
+        started_at=_now(),
     )
     db.add(job)
     db.commit()
@@ -83,19 +88,16 @@ def _ingest_document(db: Session, doc: Document) -> None:
             )
             chunk_entities.append(c)
 
+        provider = get_embedding_provider()
+        vectors = provider.embed_documents([c.text for c in chunk_entities])
+        for c, v in zip(chunk_entities, vectors, strict=True):
+            c.embedding = v
         db.add_all(chunk_entities)
-        db.flush()
-
-        vectors = get_embedding_provider().embed_documents([c.text for c in chunk_entities])
-        embedding_entities = [
-            Embedding(chunk_id=c.id, vector=v) for c, v in zip(chunk_entities, vectors, strict=True)
-        ]
-
-        db.add_all(embedding_entities)
+        doc.embedding_model = settings.embedding_model
 
         doc.status = "READY"
         job.status = "DONE"
-        job.finished_at = datetime.utcnow()
+        job.finished_at = _now()
         db.commit()
         logger.info(
             "Finished ingestion job %s for document %s. Status set to READY", job.id, doc.id
@@ -106,7 +108,7 @@ def _ingest_document(db: Session, doc: Document) -> None:
         doc.status = "ERROR"
         job.status = "ERROR"
         job.error = str(exc)
-        job.finished_at = datetime.utcnow()
+        job.finished_at = _now()
         db.commit()
         logger.error(
             "Ingestion job %s failed for document %s: %s", job.id, doc.id, exc, exc_info=True
