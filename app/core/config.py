@@ -12,7 +12,9 @@ COHERE_EMBEDDING_DIMS = {
 # Minimum cosine similarity of the best passage before the engine answers. Similarity scales
 # differ per model, so each one needs its own value; see docs/BENCHMARKS.md for the calibration.
 DEFAULT_MIN_SIMILARITY = {
-    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": 0.35,
+    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": 0.55,
+    "sentence-transformers/paraphrase-multilingual-mpnet-base-v2": 0.52,
+    # Not calibrated yet (needs a Cohere key): run eval.run and set MIN_SIMILARITY.
     "embed-multilingual-v3.0": 0.30,
 }
 FALLBACK_MIN_SIMILARITY = 0.30
@@ -38,6 +40,8 @@ class Settings(BaseSettings):
     local_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     model_cache_dir: str | None = None
     hnsw_ef_search: int = 100
+    chunk_size: int = 1000  # characters
+    chunk_overlap: int = 200
     rerank_provider: Literal["none", "cohere"] = "none"
     cohere_rerank_model: str = "rerank-v3.5"
     rerank_candidates: int = 30
