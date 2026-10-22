@@ -1,0 +1,99 @@
+/*
+ * Deep Ink design tokens (see the design prototype and docs/DECISIONS.md).
+ * Dark first; every text/background pair passes WCAG AA in both themes.
+ */
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b0e13;
+  --surface: #12161d;
+  --input: #0e1218;
+  --raised: #1c232c;
+  --line: #262e3a;
+  --line-soft: #1f2630;
+  --track: #1a2029;
+  --dot: #1e252f;
+  --text: #e7ebf0;
+  --soft: #b8c1cc;
+  --muted: #9aa5b3;
+  --faint: #8591a0;
+  --accent: #8cc7b5;
+  --on-accent: #0b0e13;
+  --accent-bg: #1f3a34;
+  --accent-fg: #b4ddd0;
+  --accent-line: #2e5a50;
+  --dense: #a3b4ec;
+  --dense-bg: #1a2236;
+  --dense-fg: #c9d2ee;
+  --lex: #c4a9e3;
+  --lex-bg: #241d30;
+  --lex-fg: #dccdef;
+  --rose: #dda6b3;
+  --rose-bg: #2e1f27;
+  --rose-fg: #ebc3cd;
+  --rose-line: #3a2a33;
+  --code: #1a2029;
+  --highlight: #16211f;
+  --shadow: rgb(0 0 0 / 60%);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --input: #f7f8fa;
+  --raised: #edf0f3;
+  --line: #d9dfe6;
+  --line-soft: #e5e9ee;
+  --track: #e6eaef;
+  --dot: #dce2e8;
+  --text: #131922;
+  --soft: #344050;
+  --muted: #556170;
+  --faint: #5f6b79;
+  --accent: #2e7564;
+  --on-accent: #ffffff;
+  --accent-bg: #e1f1ec;
+  --accent-fg: #1f5a4c;
+  --accent-line: #b9ddd2;
+  --dense: #5068bf;
+  --dense-bg: #e7ecfa;
+  --dense-fg: #2e428a;
+  --lex: #8a5fbf;
+  --lex-bg: #f0e9f9;
+  --lex-fg: #5b3a87;
+  --rose: #b5566e;
+  --rose-bg: #f8e7ec;
+  --rose-fg: #8a3550;
+  --rose-line: #ebcbd4;
+  --code: #edf0f3;
+  --highlight: #eef7f4;
+  --shadow: rgb(19 25 34 / 18%);
+}
+
+:root {
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-text: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius-s: 7px;
+  --radius-m: 12px;
+  --radius-l: 18px;
+  --radius-pill: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-emphasis: 320ms;
+
+  --content-width: 1200px;
+  --target: 44px;
+}
