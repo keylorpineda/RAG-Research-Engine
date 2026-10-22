@@ -1,0 +1,30 @@
+name: Feature request
+description: Propose a new feature or an improvement
+labels: ['type: feature']
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Which problem does this solve? Link benchmark numbers if it is about retrieval quality.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What should change.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
