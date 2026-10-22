@@ -9,7 +9,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "format": "prettier --write \"src/**/*.{ts,html,css}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,html,css}\""
+    "format:check": "prettier --check \"src/**/*.{ts,html,css}\"",
+    "benchmarks": "node scripts/benchmarks.mjs && prettier --write src/app/pages/benchmarks/benchmarks.data.ts"
   },
   "private": true,
   "packageManager": "pnpm@11.17.0",

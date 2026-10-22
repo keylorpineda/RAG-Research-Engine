@@ -1,0 +1,87 @@
+<div class="head rise">
+  <div>
+    <h1 class="page-title">{{ t().title }}</h1>
+    <span class="sub">
+      {{ i18n.format(t().sub, { docs: data.corpus.documents, questions: data.corpus.questions }) }}
+    </span>
+  </div>
+  <app-segmented [options]="providers" [label]="t().embeddings" [(value)]="providerKey" />
+</div>
+
+<div class="kpis rise">
+  @for (kpi of kpis(); track kpi.key; let i = $index) {
+    <div class="kpi">
+      <span class="kpi-label">{{ t().kpis[kpi.key] }}</span>
+      <!-- Re-keyed per provider so the number animates in again when it changes. -->
+      @for (value of [kpi.value]; track providerKey()) {
+        <span class="kpi-value" [style.animation-delay]="i * 0.06 + 's'">{{ value }}</span>
+      }
+      <span class="kpi-note">{{ t().notes[kpi.key] }}</span>
+    </div>
+  }
+</div>
+
+<div class="row">
+  <section class="card modes rise" aria-labelledby="modes-title">
+    <h2 id="modes-title">{{ t().byMode }}</h2>
+    <dl>
+      @for (m of modes(); track m.mode) {
+        <dt [class.best]="m.best">{{ t().modes[m.mode] }}</dt>
+        <dd>
+          <span class="track" aria-hidden="true">
+            <span
+              class="fill"
+              [attr.data-mode]="m.mode"
+              [style.transform]="'scaleX(' + m.recall5 + ')'"
+            ></span>
+          </span>
+          <span class="num">{{ i18n.decimal(m.recall5) }}</span>
+        </dd>
+      }
+    </dl>
+    <div class="scale" aria-hidden="true">
+      <span>0</span><span>{{ i18n.decimal(0.5) }}</span
+      ><span>1</span>
+    </div>
+    <p class="langs">
+      <span>{{ t().english }} {{ i18n.decimal(provider().kpis.recall5En) }}</span>
+      <span>{{ t().spanish }} {{ i18n.decimal(provider().kpis.recall5Es) }}</span>
+    </p>
+  </section>
+
+  <section class="card abstain rise" aria-labelledby="tau-title">
+    <h2 id="tau-title">{{ t().abstain }}</h2>
+    <app-abstention-chart
+      [points]="provider().sweep"
+      [calibrated]="provider().threshold"
+      [(index)]="sweepIndex"
+    />
+  </section>
+</div>
+
+<section class="card speed rise" aria-labelledby="speed-title">
+  <div class="speed-head">
+    <h2 id="speed-title">{{ i18n.format(t().speed, { n: data.search.chunks }) }}</h2>
+    <span>{{ t().speedNote }}</span>
+  </div>
+  <dl>
+    @for (row of speed(); track row.label) {
+      <dt>{{ row.label }}</dt>
+      <dd>
+        <span class="track" aria-hidden="true">
+          <span
+            class="fill"
+            [attr.data-tone]="row.tone"
+            [style.transform]="'scaleX(' + row.width + ')'"
+          ></span>
+        </span>
+        <span class="num">{{ row.text }}</span>
+      </dd>
+    }
+  </dl>
+</section>
+
+<p class="source">
+  <span>{{ i18n.format(t().source, { commit: data.corpus.commit }) }}</span>
+  <a [href]="docs">{{ t().methodology }}</a>
+</p>
