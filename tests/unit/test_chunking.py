@@ -2,7 +2,7 @@ import itertools
 
 import pytest
 
-from app.services.chunking import approx_tokens, chunk
+from app.ingestion.chunking import approx_tokens, chunk
 
 
 def test_empty_text_has_no_chunks() -> None:

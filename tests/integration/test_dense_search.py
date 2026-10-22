@@ -5,9 +5,9 @@ import pytest
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.ingestion.pipeline import ingest_document
 from app.models.models import DocChunk, Document, DocumentStatus
 from app.retrieval.dense import dense_search
-from app.services import ingestion
 from tests.fakes import HashEmbeddings
 
 
@@ -56,17 +56,15 @@ def test_pending_documents_are_never_returned(db: Session) -> None:
     assert len(hits) == 200
 
 
-def test_ingestion_stores_vectors_and_the_model_name(
-    db: Session, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setattr(ingestion, "get_embedding_provider", HashEmbeddings)
+def test_ingestion_stores_vectors_and_the_model_name(db: Session, tmp_path: Path) -> None:
     source = tmp_path / "notes.txt"
     source.write_text("Coroutines use async and await.\n\nThe GIL limits threads.", "utf-8")
     doc = Document(filename="notes.txt", path=str(source), status=DocumentStatus.PENDING)
     db.add(doc)
     db.commit()
 
-    ingestion._ingest_document(db, doc)
+    ingest_document(db, doc, HashEmbeddings())
+    db.commit()
 
     db.refresh(doc)
     assert doc.status == DocumentStatus.READY
