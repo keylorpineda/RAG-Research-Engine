@@ -70,6 +70,7 @@ def to_response(answer: Answer, min_similarity: float) -> QueryResponse:
                 doc_id=p.hit.document_id,
                 filename=p.hit.filename,
                 chunk_index=p.hit.chunk_index,
+                section=p.hit.section,
                 score=round(p.score, 6),
                 dense_score=None if p.dense_score is None else round(p.dense_score, 6),
                 lexical_score=None if p.lexical_score is None else round(p.lexical_score, 6),
