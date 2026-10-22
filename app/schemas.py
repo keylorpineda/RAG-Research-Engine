@@ -42,6 +42,13 @@ class MessageOut(Schema):
     message: str
 
 
+class HealthOut(Schema):
+    status: str
+    embedding_model: str
+    min_similarity: float
+    jobs: dict[str, int] = Field(description="Job count per status.")
+
+
 class QueryRequest(Schema):
     q: str = Field(min_length=1, max_length=2000, description="The question.")
     k: int = Field(default=5, ge=1, le=20, description="Passages sent to the language model.")
