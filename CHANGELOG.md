@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-23
+
+### Added
+
+- Lexical translation: non-English questions are translated for full-text search only
+  (`LEXICAL_TRANSLATION`); Spanish lexical Recall@5 0.200 to 0.400, English unchanged. On in the
+  demo configurations (#37).
+- Section chunking: `CHUNKING=sections` splits at Markdown, reStructuredText and numbered PDF
+  headings, stores each chunk's section (migration 0005) and shows it on passages; hybrid
+  Recall@5 0.530 to 0.591 with MiniLM. Optional until the thresholds are recalibrated (#35).
+- Fully local answers: `LLM_PROVIDER=openai_compatible` talks to Ollama or llama.cpp, with a
+  `local-llm` compose profile (#61).
+- Heroku deploy: `heroku.yml`, `app.json` and a third route in `docs/DEPLOY.md` (#44).
+
+### Changed
+
+- The user prompt repeats the citation rule after the question, which small local models need.
+
 ## [2.1.1] - 2026-10-22
 
 ### Fixed
@@ -125,7 +143,8 @@ python -m app.worker      # start at least one worker
 First prototype: FastAPI, Postgres with JSONB vectors, Cohere embeddings, Groq answers and the
 CustomTkinter desktop client.
 
-[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.1...develop
+[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.0...develop
+[2.2.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v1.0.0...v2.0.0
