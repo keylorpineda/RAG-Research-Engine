@@ -60,6 +60,7 @@ class Reference(Schema):
     score: float
     dense_score: float | None = None
     lexical_score: float | None = None
+    rerank_score: float | None = None
     text: str
 
 

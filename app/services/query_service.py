@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.models.models import QueryLog
 from app.providers.embeddings import get_embedding_provider
+from app.providers.rerank import get_reranker
 from app.retrieval.dense import Hit
 from app.retrieval.ranking import Scored, select_passages
 from app.retrieval.retriever import Candidate, RetrievalMode, retrieve
@@ -30,6 +31,8 @@ def ask(
         k=top_k * CANDIDATE_FACTOR,
         embeddings=get_embedding_provider(),
         ef_search=settings.hnsw_ef_search,
+        reranker=get_reranker(),
+        rerank_candidates=settings.rerank_candidates,
     )
     # The similarity threshold only means something for cosine scores (dense mode).
     min_score = threshold if mode == RetrievalMode.DENSE else float("-inf")
@@ -75,6 +78,7 @@ Pregunta del Usuario: {question}"""
             "score": round(c.score, 6),
             "denseScore": None if c.dense_score is None else round(c.dense_score, 6),
             "lexicalScore": None if c.lexical_score is None else round(c.lexical_score, 6),
+            "rerankScore": None if c.rerank_score is None else round(c.rerank_score, 6),
             "text": c.hit.text,
         }
         for c in picked

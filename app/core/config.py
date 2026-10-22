@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     local_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     model_cache_dir: str | None = None
     hnsw_ef_search: int = 100
+    rerank_provider: Literal["none", "cohere"] = "none"
+    cohere_rerank_model: str = "rerank-v3.5"
+    rerank_candidates: int = 30
     uploads_dir: str = "uploads"
     max_upload_mb: int = 20
     max_files_per_upload: int = 10
