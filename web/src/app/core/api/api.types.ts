@@ -15,6 +15,7 @@ export interface DocumentOut {
 export interface ChunkOut {
   id: number;
   chunkIndex: number;
+  section: string | null;
   tokenCount: number;
   text: string;
 }
@@ -59,6 +60,8 @@ export interface Reference {
   docId: number;
   filename: string;
   chunkIndex: number;
+  /** Heading the passage sits under; null for fixed-window chunks. */
+  section: string | null;
   score: number;
   denseScore: number | null;
   lexicalScore: number | null;

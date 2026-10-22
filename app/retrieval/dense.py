@@ -23,6 +23,7 @@ class Hit:
     text: str
     token_count: int
     score: float
+    section: str | None = None
 
 
 def dense_search(
@@ -46,6 +47,7 @@ def dense_search(
             DocChunk.text,
             DocChunk.token_count,
             (1 - distance).label("score"),
+            DocChunk.section,
         )
         .join(Document)
         .where(Document.status == DocumentStatus.READY, DocChunk.embedding.is_not(None))

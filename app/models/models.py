@@ -73,6 +73,7 @@ class DocChunk(Base):
         ForeignKey("documents.id", ondelete="CASCADE"), index=True
     )
     chunk_index: Mapped[int]
+    section: Mapped[str | None] = mapped_column(String(300))
     text: Mapped[str] = mapped_column(Text)
     token_count: Mapped[int]
     embedding: Mapped[list[float] | None] = mapped_column(Vector(settings.embedding_dim))

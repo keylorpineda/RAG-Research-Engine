@@ -1,4 +1,30 @@
 import re
+from dataclasses import dataclass
+from typing import Literal
+
+from app.ingestion.sections import split_sections
+
+Strategy = Literal["window", "sections"]
+
+
+@dataclass(frozen=True)
+class Chunk:
+    text: str
+    section: str | None
+
+
+def chunk_document(
+    text: str, *, size: int = 1000, overlap: int = 200, strategy: Strategy = "window"
+) -> list[Chunk]:
+    """``window``: fixed-size windows over the whole text. ``sections``: the same windows inside
+    each section, so no chunk spans two sections and overlap never crosses a heading."""
+    if strategy == "window":
+        return [Chunk(t, None) for t in chunk(text, size, overlap)]
+    return [
+        Chunk(t, section.title)
+        for section in split_sections(text)
+        for t in chunk(section.text, size, overlap)
+    ]
 
 
 def chunk(text: str, size: int = 1000, overlap: int = 200) -> list[str]:

@@ -26,6 +26,7 @@ class DocumentOut(Schema):
 class ChunkOut(Schema):
     id: int
     chunk_index: int
+    section: str | None = None
     token_count: int
     text: str
 
@@ -80,6 +81,7 @@ class Reference(Schema):
     doc_id: int
     filename: str
     chunk_index: int
+    section: str | None = Field(default=None, description="Heading the passage sits under.")
     score: float
     dense_score: float | None = None
     lexical_score: float | None = None

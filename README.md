@@ -101,6 +101,7 @@ are already local by default.
 | `RERANK_PROVIDER` | `none` | `cohere` reranks the top `RERANK_CANDIDATES` (30) |
 | `LEXICAL_TRANSLATION` | `false` | Translate non-English questions for full-text search (one model call, cached) |
 | `MIN_SIMILARITY` | per model | Abstain below this best similarity (0.55 local, 0.60 Cohere) |
+| `CHUNKING` | `window` | `sections`: split at headings first (better recall, recalibrate `MIN_SIMILARITY`) |
 | `CHUNK_SIZE` / `CHUNK_OVERLAP` | `1000` / `200` | Characters |
 | `COHERE_*_PER_MINUTE` | off | Token and call budgets for Cohere trial keys |
 | `EMBEDDED_WORKER` | `false` | Run one worker inside the API process |
