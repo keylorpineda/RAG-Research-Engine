@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>Research Engine</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Answers from your documents, with the sources they come from, and no answer when the evidence is not there."
+    />
+    <meta name="theme-color" content="#0b0e13" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <script>
+      // Apply the saved theme before the first paint, so a light-mode visitor never sees a dark flash.
+      (function () {
+        try {
+          var saved = localStorage.getItem('re-theme');
+          var light =
+            window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          document.documentElement.dataset.theme = saved || (light ? 'light' : 'dark');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>

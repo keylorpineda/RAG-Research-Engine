@@ -35,6 +35,7 @@ jobs:
             db
             eval
             gui
+            web
             deps
             deps-dev
             ci
