@@ -6,7 +6,7 @@ queue. There is no separate vector database and no message broker.
 
 ```mermaid
 flowchart LR
-    client["Client<br/>(HTTP, desktop app)"] --> api["API<br/>FastAPI"]
+    client["Client<br/>(HTTP, web app)"] --> api["API<br/>FastAPI"]
     api -- "documents, jobs" --> pg[("Postgres<br/>pgvector · tsvector · jobs")]
     worker["Workers<br/>python -m app.worker"] -- "claim job<br/>FOR UPDATE SKIP LOCKED" --> pg
     worker -- "embed passages" --> emb["Embeddings<br/>Cohere or local ONNX"]
@@ -35,7 +35,7 @@ flowchart LR
 | `migrations/` | Alembic migrations, from the v1 schema to the current one. |
 | `eval/` | Benchmark corpus, questions and runner. |
 | `bench/` | Vector search latency benchmark. |
-| `desktop/` | CustomTkinter client and its typed API client. |
+| `web/` | Angular client: ask with citations, library, benchmarks. |
 
 ## A question, step by step
 

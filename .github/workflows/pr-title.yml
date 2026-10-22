@@ -34,7 +34,6 @@ jobs:
             ingestion
             db
             eval
-            gui
             web
             deps
             deps-dev

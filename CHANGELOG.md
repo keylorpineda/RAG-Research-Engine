@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Milestone **v2.2 — Web app**.
+
+### Added
+
+- Angular web app in `web/` (pnpm, standalone, zoneless): dark and light themes, English and
+  Spanish, responsive down to 360 px (#39).
+- Library: drag-and-drop uploads with per-file progress and client-side checks, live document
+  status, filters, retry, and deletes with an undo window (#40).
+- Ask: answers with `[n]` citations linked to their passages and scores, an evidence meter, and
+  an abstention card that explains each reason (#41).
+- Benchmarks page generated from `eval/results` (#41) and inline SVG illustrations (#42).
+- API: `chunkCount` on documents; `uploadsEnabled`, `maxUploadMb` and `maxFilesPerUpload` on
+  `/api/health`; `UPLOADS_ENABLED=false` turns uploads off for a public demo (#40).
+
+### Removed
+
+- The CustomTkinter desktop client (`desktop/`, `gui.py` and the `gui` extra): the web app
+  covers uploads, documents and questions (#43).
+
 ## [2.0.0] - 2026-10-22
 
 Milestone **v2.0 — Measured retrieval**: fix the retrieval bugs, move vectors into pgvector,
