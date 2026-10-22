@@ -14,6 +14,7 @@ import httpx
 from app.core.config import Settings, settings
 from app.core.errors import ProviderNotConfiguredError, UpstreamError
 from app.providers.http import post_with_retries
+from app.providers.ratelimit import TokenBudget
 
 COHERE_RERANK_URL = "https://api.cohere.com/v2/rerank"
 
@@ -38,6 +39,7 @@ class CohereReranker:
         *,
         client: httpx.Client | None = None,
         sleep: Callable[[float], None] | None = None,
+        budget: TokenBudget | None = None,
     ) -> None:
         self.name = f"cohere:{model}"
         self._model = model
@@ -45,10 +47,13 @@ class CohereReranker:
             timeout=30.0, headers={"Authorization": f"Bearer {api_key}"}
         )
         self._sleep = sleep
+        self._budget = budget  # counts calls, not tokens
 
     def rerank(self, query: str, documents: Sequence[str], top_n: int) -> list[Reranked]:
         if not documents:
             return []
+        if self._budget is not None:
+            self._budget.acquire(1)
         payload = {
             "model": self._model,
             "query": query,
@@ -70,7 +75,12 @@ def build_reranker(config: Settings) -> Reranker | None:
         return None
     if not config.cohere_api_key or config.cohere_api_key.strip().lower() == "changeme":
         raise ProviderNotConfiguredError("The rerank provider is not configured.")
-    return CohereReranker(config.cohere_api_key, config.cohere_rerank_model)
+    per_minute = config.cohere_rerank_requests_per_minute
+    return CohereReranker(
+        config.cohere_api_key,
+        config.cohere_rerank_model,
+        budget=TokenBudget(per_minute) if per_minute else None,
+    )
 
 
 @lru_cache(maxsize=1)

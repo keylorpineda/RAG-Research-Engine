@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     # Local by default: the project runs with a single key (Groq). See docs/DECISIONS.md.
     embedding_provider: Literal["cohere", "local"] = "local"
     cohere_embedding_model: str = "embed-multilingual-v3.0"
+    # Trial keys allow 100,000 tokens per minute: set 90000 to stay under it while ingesting.
+    cohere_tokens_per_minute: int | None = None
     local_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     model_cache_dir: str | None = None
     hnsw_ef_search: int = 100
@@ -45,6 +47,8 @@ class Settings(BaseSettings):
     chunk_overlap: int = 200
     rerank_provider: Literal["none", "cohere"] = "none"
     cohere_rerank_model: str = "rerank-v3.5"
+    # Trial keys allow 10 rerank calls per minute.
+    cohere_rerank_requests_per_minute: int | None = None
     rerank_candidates: int = 30
     uploads_dir: str = "uploads"
     max_upload_mb: int = 20

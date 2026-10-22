@@ -16,6 +16,7 @@ import httpx
 from app.core.config import COHERE_EMBEDDING_DIMS, LOCAL_EMBEDDING_DIMS, Settings, settings
 from app.core.errors import ProviderNotConfiguredError, UpstreamError
 from app.providers.http import post_with_retries
+from app.providers.ratelimit import TokenBudget, estimate_tokens
 
 if TYPE_CHECKING:
     from fastembed import TextEmbedding
@@ -50,6 +51,7 @@ class CohereEmbeddings:
         *,
         client: httpx.Client | None = None,
         sleep: Callable[[float], None] | None = None,
+        budget: TokenBudget | None = None,
     ) -> None:
         if model not in COHERE_DIMS:
             raise ValueError(f"Unknown Cohere embedding model: {model}")
@@ -60,6 +62,7 @@ class CohereEmbeddings:
             timeout=60.0, headers={"Authorization": f"Bearer {api_key}"}
         )
         self._sleep = sleep
+        self._budget = budget
 
     def embed_documents(self, texts: Sequence[str]) -> list[Vector]:
         vectors: list[Vector] = []
@@ -71,6 +74,10 @@ class CohereEmbeddings:
         return self._embed([text], "search_query")[0]
 
     def _embed(self, texts: Sequence[str], input_type: str) -> list[Vector]:
+        if self._budget is not None:
+            waited = self._budget.acquire(sum(estimate_tokens(t) for t in texts))
+            if waited:
+                logger.info("Waited %.1f s for the Cohere token budget", waited)
         payload = {
             "model": self._model,
             "texts": list(texts),
@@ -131,7 +138,10 @@ def build_embedding_provider(config: Settings) -> EmbeddingProvider:
         return LocalEmbeddings(config.local_embedding_model, cache_dir=config.model_cache_dir)
     if not config.cohere_api_key or config.cohere_api_key.strip().lower() == "changeme":
         raise ProviderNotConfiguredError("The embedding provider is not configured.")
-    return CohereEmbeddings(config.cohere_api_key, config.cohere_embedding_model)
+    budget = (
+        TokenBudget(config.cohere_tokens_per_minute) if config.cohere_tokens_per_minute else None
+    )
+    return CohereEmbeddings(config.cohere_api_key, config.cohere_embedding_model, budget=budget)
 
 
 @lru_cache(maxsize=1)
