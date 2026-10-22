@@ -97,6 +97,12 @@ LOCAL_EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-mpnet-base-v
   EVAL_DATABASE_URL=... uv run python -m eval.run --tag mpnet-1000
 ```
 
+With Cohere, add the trial-key limits so ingestion and reranking wait instead of failing:
+
+```bash
+EMBEDDING_PROVIDER=cohere COHERE_API_KEY=... COHERE_TOKENS_PER_MINUTE=90000   COHERE_RERANK_REQUESTS_PER_MINUTE=10 EVAL_DATABASE_URL=... uv run python -m eval.run --rerank --tag cohere
+```
+
 The runner wipes the database it is given and refuses any database whose name does not contain
 `eval`, `test` or `bench`. CI runs it on every pull request that touches `app/`, `eval/` or
 `migrations/`, and fails if hybrid or dense Recall@5, or the abstention balanced accuracy,
