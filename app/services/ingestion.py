@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.models.database import SessionLocal
 from app.models.models import DocChunk, Document, Embedding, JobLog
-from app.services import chunking, embedding_provider, text_extractor
+from app.providers.embeddings import get_embedding_provider
+from app.services import chunking, text_extractor
 
 logger = logging.getLogger(__name__)
 
@@ -85,15 +86,10 @@ def _ingest_document(db: Session, doc: Document) -> None:
         db.add_all(chunk_entities)
         db.flush()
 
-        embedding_entities: list[Embedding] = []
-        batch_size = 90
-        for i in range(0, len(chunk_entities), batch_size):
-            batch_objects = chunk_entities[i : i + batch_size]
-            batch_texts = [c.text for c in batch_objects]
-            vectors = embedding_provider.embed_batch(batch_texts)
-
-            for chunk_obj, vec in zip(batch_objects, vectors, strict=True):
-                embedding_entities.append(Embedding(chunk_id=chunk_obj.id, vector=vec))
+        vectors = get_embedding_provider().embed_documents([c.text for c in chunk_entities])
+        embedding_entities = [
+            Embedding(chunk_id=c.id, vector=v) for c, v in zip(chunk_entities, vectors, strict=True)
+        ]
 
         db.add_all(embedding_entities)
 

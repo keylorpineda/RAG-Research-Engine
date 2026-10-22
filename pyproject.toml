@@ -20,12 +20,16 @@ dependencies = [
 
 [project.optional-dependencies]
 gui = ["customtkinter>=5.2.2"]
+local = [
+    "fastembed>=0.5",
+]
 
 [dependency-groups]
 dev = [
     "mypy>=1.13",
     "pytest>=8.3",
     "pytest-cov>=6.0",
+    "respx>=0.22",
     "ruff>=0.8",
 ]
 
@@ -53,13 +57,16 @@ packages = ["app"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["pdfplumber.*"]
+module = ["pdfplumber.*", "fastembed.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
-markers = ["integration: needs a running Postgres with pgvector (DATABASE_URL)"]
+markers = [
+    "integration: needs a running Postgres with pgvector (DATABASE_URL)",
+    "model: downloads and runs the local embedding model",
+]
 filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
 
 [tool.coverage.run]

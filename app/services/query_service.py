@@ -5,13 +5,14 @@ from typing import Any
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.models import DocChunk, Document, Embedding, QueryLog
-from app.services import embedding_provider, llm_provider, similarity
+from app.providers.embeddings import get_embedding_provider
+from app.services import llm_provider, similarity
 
 
 def ask(
     db: Session, question: str, top_k: int = 5, threshold: float = 0.7, max_tokens: int = 4000
 ) -> dict[str, Any]:
-    query_vector = embedding_provider.embed(question)
+    query_vector = get_embedding_provider().embed_query(question)
 
     chunks = (
         db.query(DocChunk)

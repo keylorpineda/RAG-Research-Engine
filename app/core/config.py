@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,8 +11,10 @@ class Settings(BaseSettings):
     groq_model: str = "llama-3.3-70b-versatile"
     groq_max_output_tokens: int = 2048
     cohere_api_key: str = "changeme"
+    embedding_provider: Literal["cohere", "local"] = "cohere"
     cohere_embedding_model: str = "embed-multilingual-v3.0"
-    cohere_embedding_input_type: str = "search_document"
+    local_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    model_cache_dir: str | None = None
     uploads_dir: str = "uploads"
     max_upload_mb: int = 20
     max_files_per_upload: int = 10
