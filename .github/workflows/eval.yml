@@ -1,0 +1,80 @@
+name: Benchmark
+
+on:
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'eval/**'
+      - 'migrations/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    name: eval
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: rag
+          POSTGRES_PASSWORD: rag
+          POSTGRES_DB: rag_eval
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U rag -d rag_eval"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      EVAL_DATABASE_URL: postgresql://rag:rag@localhost:5433/rag_eval
+      EMBEDDING_PROVIDER: local
+      MODEL_CACHE_DIR: ~/.cache/fastembed
+      HF_HUB_DISABLE_PROGRESS_BARS: '1'
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Cache embedding model and corpus
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cache/fastembed
+            eval/corpus
+          key: eval-${{ hashFiles('app/providers/embeddings.py', 'eval/corpus.lock.json') }}
+
+      - name: Install
+        run: uv sync --frozen --extra local
+
+      # Fails if hybrid or dense Recall@5, or abstention balanced accuracy, drop more than
+      # 3 points below eval/results/baseline.json.
+      - name: Benchmark
+        run: uv run python -m eval.run --check
+
+      - name: Summary
+        if: always()
+        run: cat eval/results/latest.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: benchmark-results
+          path: eval/results/latest.*

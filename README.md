@@ -1,151 +1,144 @@
-# RAG Research Engine 🤖
-> **Enterprise-Grade RAG Infrastructure for Autonomous Document Intelligence.**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-dark.svg">
+  <img src="docs/assets/hero-light.svg" alt="Research Engine: answers from your documents, with the sources they come from, and no answer when the evidence is not there." width="100%">
+</picture>
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
-[![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL%2015-336791.svg)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/orchestration-Docker-2496ED.svg)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <a href="https://github.com/keylorpineda/RAG-Research-Engine/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/keylorpineda/RAG-Research-Engine/ci.yml?branch=develop&style=flat-square&label=CI&color=2E7564" alt="CI"></a>
+  <a href="https://github.com/keylorpineda/RAG-Research-Engine/actions/workflows/eval.yml"><img src="https://img.shields.io/github/actions/workflow/status/keylorpineda/RAG-Research-Engine/eval.yml?branch=develop&style=flat-square&label=benchmark&color=2E7564" alt="Benchmark"></a>
+  <img src="https://img.shields.io/badge/Python-3.12-2E7564?style=flat-square" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/Postgres-pgvector-2E7564?style=flat-square" alt="Postgres with pgvector">
+  <img src="https://img.shields.io/badge/mypy-strict-2E7564?style=flat-square" alt="mypy strict">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2E7564?style=flat-square" alt="MIT license"></a>
+</p>
 
-**RAG Research Engine** is a high-performance **Retrieval-Augmented Generation (RAG)** platform engineered to operate as a **Senior AI Research Lead**. It orchestrates multi-source document ingestion, semantic vectorization, and deterministic synthesis to eliminate AI hallucinations while providing production-level scalability for technical research.
+Upload PDFs and notes, ask questions in English or Spanish, and get answers that cite the exact
+passages they use. When the documents do not hold the answer, the engine refuses **before**
+calling the language model instead of writing something plausible.
 
----
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results-dark.svg">
+  <img src="docs/assets/results-light.svg" alt="Results: Recall@5 0.38 local dense, 0.53 local hybrid, 0.73 Cohere hybrid, 0.88 Cohere with rerank. At the default threshold the engine answers 91% of answerable questions and refuses 88% of unanswerable ones. Search over 50,000 chunks takes 10 ms instead of 39 s." width="100%">
+</picture>
 
-## 🚀 Key Engineering Highlights
+Every number above is produced by a benchmark in this repository (82 questions over 26 Python
+Enhancement Proposals, English and Spanish) that runs on each pull request and fails if quality
+drops. Method, full tables and experiments: [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md).
 
-* **🛡️ Deterministic Guardrails**: Implements a strict "Closed-Domain" policy. The system is architected to admit ignorance if the provided context lacks the answer, ensuring 100% factual grounding and preventing hallucinations.
-* **⏳ Time-Weighted Semantic Scoring**: Beyond standard cosine similarity, the engine applies a custom heuristic to prioritize fresh data. Mathematical relevance is recalculated to favor recently uploaded documents over legacy records.
-* **🌍 Cross-Lingual Research Intelligence**: Powered by **Cohere Multilingual**, the engine detects query intent in any language and performs real-time semantic retrieval across diverse document sets, responding in the user's native tongue.
-* **⚡ Asynchronous Ingestion Daemon**: A dedicated background worker manages heavy vectorization and embedding tasks using a non-blocking polling architecture, ensuring the REST API and UI remain highly responsive.
-* **📉 Rank-Based Truncation (Token Safety)**: Mitigates "Lost in the Middle" syndromes by enforcing a strict 4,000-token context margin, optimized for **Groq's Llama 3.3 70B**'s high-fidelity attention mechanism.
-* **🖥️ Premium Desktop Client**: A hardware-accelerated **CustomTkinter** GUI featuring real-time status badges (`Pending`, `Processing`, `Ready`) and interactive context cards for full data traceability.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/flow-dark.svg">
+  <img src="docs/assets/flow-light.svg" alt="How it works. Ingest: upload, queue, chunk, embed, Postgres. Ask: the question goes to dense and lexical search, fused with RRF, optionally reranked; below the similarity threshold the engine does not answer, otherwise it answers with checked citations." width="100%">
+</picture>
 
----
+- **Hybrid retrieval.** pgvector (HNSW) and Postgres full-text search, fused with Reciprocal Rank
+  Fusion; an optional Cohere reranker reorders the top 30.
+- **A gate before the model.** Below the calibrated similarity threshold the answer is
+  `insufficient_evidence` and no tokens are spent.
+- **Checked citations.** The model cites numbered passages `[n]`; citations to passages it was
+  not given are removed and reported.
+- **A queue in Postgres.** Workers claim ingestion jobs with `FOR UPDATE SKIP LOCKED`, with
+  leases, retries and idempotent re-ingestion.
 
-## 🛠️ Technology Stack
+Why each choice, and what it costs: [`docs/DECISIONS.md`](docs/DECISIONS.md) ·
+code map: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-| Component | Technology | Implementation Detail |
-| :--- | :--- | :--- |
-| **Logic Layer** | **Python 3.11+** | Modular, type-hinted architecture. |
-| **Backend API** | **FastAPI** | High-concurrency Uvicorn-based service. |
-| **Data Store** | **PostgreSQL 15** | Relational 3NF schema for metadata and audit logs. |
-| **ORM** | **SQLAlchemy 2.0** | Optimized query execution and session management. |
-| **Vector AI** | **Cohere API** | `embed-multilingual-v3.0` for global semantics. |
-| **Reasoning Engine** | **Groq API** | `llama-3.3-70b-versatile` for ultra-fast, grounded synthesis. |
-| **UI/UX** | **CustomTkinter** | Modern dark-mode interface with async state polling. |
+## Quick start
 
-### 🚄 Why Groq?
-The engine leverages **Groq's LPU (Language Processing Unit)** infrastructure for unprecedented inference speed:
-* ⚡ **Sub-second response times**: Queries typically complete in 1-3 seconds
-* 🆓 **100% Free Tier**: Generous limits (30 RPM, 14,400 RPD) - perfect for production workloads
-* 🧠 **Llama 3.3 70B**: State-of-the-art reasoning capabilities with 70 billion parameters
-* 🌐 **Cloud-native**: No local compute required, ideal for enterprise deployment
-
----
-
-## 📁 System Blueprint
-
-The RAG Research Engine operates under a decoupled methodology, separating the ingestion daemon from the query pipeline to ensure system resilience and scalability.
-
-```mermaid
-flowchart LR
-	%% Ingestion Pipeline (large and readable)
-	classDef source fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b4332;
-	classDef process fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
-	classDef store fill:#fff8e1,stroke:#ef6c00,stroke-width:2px,color:#6d4c41;
-
-	subgraph ING[Ingestion Pipeline]
-		direction LR
-		U[Unstructured Data\nPDF / Web] --> S[Recursive Character\nText Splitting]
-		S --> E[Vector Embeddings]
-		E --> P[(PostgreSQL + pgvector\nEmbeddings Storage)]
-	end
-
-	class U source;
-	class S,E process;
-	class P store;
-```
-
-```mermaid
-flowchart LR
-	%% Retrieval and Generation loop (large and readable)
-	classDef source fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b4332;
-	classDef process fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
-	classDef output fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px,color:#4a148c;
-
-	subgraph RAG[RAG Query Loop]
-		direction LR
-		Q[User Query] --> M[Semantic Search\nSimilarity]
-		M --> C[Context Injection]
-		C --> G[Gemini 1.5 Flash\nReasoning]
-		G --> A[Verified Answer\nwith Citations]
-	end
-
-	class Q source;
-	class M,C,G process;
-	class A output;
-```
-
-Vector store linkage: PostgreSQL + pgvector feeds semantic retrieval during the RAG query loop.
-
----
-
-## 🧪 Mathematical Extraction Framework
-
-The engine employs a multi-stage retrieval heuristic to ensure precision in research-heavy environments.
-
-### 1. Vector Similarity
-Queries are vectorized and cross-referenced against the PostgreSQL store using **Cosine Similarity**.
-
-### 2. Heuristic Re-weighting
-The final relevance score incorporates a time-decay factor to prioritize updated information:
-```text
-Final Score = (0.8 * Similarity) + (0.2 * Recency Factor)
-```
-
-### 3. Threshold & Truncation
-* **Drop-off Threshold**: Any fragment with a score below `0.70` is discarded to eliminate noise.
-* **Token Margin**: Context injection stops at `4,000 tokens` to maintain the LLM's focus and precision.
-
----
-
-## ⚙️ Deployment & Setup
-
-### 1. Prerequisites
-* **Docker & Docker Compose**
-* API Keys: **Groq** (free at https://console.groq.com/keys) and **Cohere** (free at https://cohere.com).
-
-### 2. Environment Configuration
-Create a `.env` file in the root directory:
 ```bash
-DATABASE_URL=postgresql+psycopg2://postgres:postgres@postgres:5432/ragdb
-
-GROQ_API_KEY=your_groq_key_here
-COHERE_API_KEY=your_cohere_key_here
-
-UPLOADS_DIR=uploads
+cp .env.example .env        # only GROQ_API_KEY is required
+docker compose up --build   # Postgres + pgvector, API on :8000, one worker
 ```
 
-**Obtaining API Keys:**
-* **Groq**: Visit https://console.groq.com/keys → Create Account → Generate API Key (Free)
-* **Cohere**: Visit https://dashboard.cohere.com/api-keys → Sign Up → Create API Key (Free)
-
-### 3. Containerized Launch
 ```bash
-docker compose up --build
+curl -F "files=@paper.pdf" localhost:8000/api/upload
+curl -s localhost:8000/api/query -H "Content-Type: application/json" -d '{"q": "What does the paper propose?"}'
 ```
-* **API Listener**: `http://localhost:8000`
-* **Interactive Docs**: `http://localhost:8000/docs`
 
-### 4. Launching the GUI
-```bash
-python gui.py
+Interactive API docs at <http://localhost:8000/docs>.
+
+<details>
+<summary><b>Responses</b></summary>
+
+<br>
+
+```json
+{
+  "answered": true,
+  "answer": "Coroutines are declared with async def [1] and suspended with await [2].",
+  "refs": [{ "n": 1, "filename": "pep-0492.rst", "chunkIndex": 4, "denseScore": 0.71, "lexicalScore": 0.12, "cited": true, "text": "..." }],
+  "invalidCitations": [],
+  "evidence": { "bestSimilarity": 0.71, "minSimilarity": 0.55 }
+}
 ```
+
+```json
+{
+  "answered": false,
+  "answer": null,
+  "reason": "insufficient_evidence",
+  "refs": [],
+  "evidence": { "bestSimilarity": 0.31, "minSimilarity": 0.55 }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Configuration</b></summary>
+
+<br>
+
+| Variable | Default | |
+| :-- | :-- | :-- |
+| `GROQ_API_KEY` | | Language model for the answers |
+| `EMBEDDING_PROVIDER` | `local` | `local` (ONNX on the CPU, no key) or `cohere` |
+| `RERANK_PROVIDER` | `none` | `cohere` reranks the top `RERANK_CANDIDATES` (30) |
+| `MIN_SIMILARITY` | per model | Abstain below this best similarity (0.55 local, 0.60 Cohere) |
+| `CHUNK_SIZE` / `CHUNK_OVERLAP` | `1000` / `200` | Characters |
+| `COHERE_*_PER_MINUTE` | off | Token and call budgets for Cohere trial keys |
+| `EMBEDDED_WORKER` | `false` | Run one worker inside the API process |
+
+All settings: [`app/core/config.py`](app/core/config.py) · [`.env.example`](.env.example).
+
+</details>
+
+<details>
+<summary><b>Development</b></summary>
+
+<br>
+
+```bash
+uv sync --all-extras
+uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pytest
+```
+
+Integration tests and the benchmark need Postgres with pgvector:
+
+```bash
+docker compose up -d postgres
+TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres uv run pytest
+EVAL_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rag_eval uv run python -m eval.run
+```
+
+| Path | |
+| :-- | :-- |
+| `app/` | API, retrieval, answering, ingestion, worker |
+| `migrations/` | Alembic, from the v1 schema |
+| `eval/` · `bench/` | Retrieval benchmark · vector search latency |
+| `desktop/` | Desktop client (`python gui.py`) |
+| `docs/` | Benchmarks, architecture, decisions, these cards (`docs/assets/build.py`) |
+
+Contributions: [`CONTRIBUTING.md`](.github/CONTRIBUTING.md) · security reports:
+[`SECURITY.md`](.github/SECURITY.md) · roadmap: [project board](https://github.com/users/keylorpineda/projects/4).
+
+</details>
+
+## Limits
+
+- The corpus is small (26 documents) and thresholds are calibrated on the same questions they are
+  measured on: the numbers compare designs, they are not a promise on your documents.
+- The API has no authentication; run it on a private network or behind an authenticating proxy.
 
 ---
 
-## 📄 Credits & Academic Purpose
-
-Developed as an elite implementation of industrial AI research architectures.
-* **Developer**: Keylor Pineda (Systems Engineering Student, National University of Costa Rica - UNA)
-* **Focus**: Scalable RAG, Asynchronous Python, and Document Intelligence.
+<p align="center"><sub>© 2026 <a href="https://github.com/keylorpineda">Keylor Pineda</a> · Systems Engineering, Universidad Nacional de Costa Rica · <a href="LICENSE">MIT license</a></sub></p>

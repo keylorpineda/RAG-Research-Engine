@@ -1,0 +1,82 @@
+{"id": "a001", "lang": "en", "question": "How many spaces should be used per indentation level?", "doc": "pep-0008.rst", "evidence": "Use 4 spaces per indentation level", "answerable": true}
+{"id": "a002", "lang": "es", "question": "¿Cuál es la longitud máxima de línea recomendada en la guía de estilo de Python?", "doc": "pep-0008.rst", "evidence": "maximum of 79 characters", "answerable": true}
+{"id": "a003", "lang": "es", "question": "¿Cómo se deben nombrar las clases según la guía de estilo?", "doc": "pep-0008.rst", "evidence": "Class names should normally use the CapWords convention", "answerable": true}
+{"id": "a004", "lang": "en", "question": "Why should I avoid a bare except clause?", "doc": "pep-0008.rst", "evidence": "bare ``except:`` clause will catch SystemExit", "answerable": true}
+{"id": "a005", "lang": "en", "question": "Are absolute or relative imports recommended?", "doc": "pep-0008.rst", "evidence": "Absolute imports are recommended", "answerable": true}
+{"id": "a006", "lang": "es", "question": "¿Cuántas líneas en blanco deben rodear las funciones y clases de nivel superior?", "doc": "pep-0008.rst", "evidence": "Surround top-level function and class definitions with two blank", "answerable": true}
+{"id": "a007", "lang": "en", "question": "How should module-level constants be named?", "doc": "pep-0008.rst", "evidence": "Constants are usually defined on a module level", "answerable": true}
+{"id": "a008", "lang": "es", "question": "¿Cómo se debe comparar un valor con None?", "doc": "pep-0008.rst", "evidence": "Comparisons to singletons like None should always be done with", "answerable": true}
+{"id": "a009", "lang": "en", "question": "What does the Zen of Python say about errors?", "doc": "pep-0020.rst", "evidence": "Errors should never pass silently", "answerable": true}
+{"id": "a010", "lang": "es", "question": "¿Qué dice el Zen de Python sobre cuántas formas obvias debe haber de hacer algo?", "doc": "pep-0020.rst", "evidence": "preferably only one --obvious way to do it", "answerable": true}
+{"id": "a011", "lang": "en", "question": "What kind of quotes should docstrings use?", "doc": "pep-0257.rst", "evidence": "triple double quotes", "answerable": true}
+{"id": "a012", "lang": "es", "question": "¿Cuándo conviene usar un docstring de una sola línea?", "doc": "pep-0257.rst", "evidence": "One-liners are for really obvious cases", "answerable": true}
+{"id": "a013", "lang": "en", "question": "Which attribute stores the docstring of an object?", "doc": "pep-0257.rst", "evidence": "becomes the ``__doc__`` special attribute", "answerable": true}
+{"id": "a014", "lang": "en", "question": "Which methods must a context manager provide for the with statement?", "doc": "pep-0343.rst", "evidence": "context managers provide ``__enter__()`` and ``__exit__()``", "answerable": true}
+{"id": "a015", "lang": "es", "question": "¿Qué decorador permite escribir un context manager como un generador?", "doc": "pep-0343.rst", "evidence": "``@contextmanager`` decorator", "answerable": true}
+{"id": "a016", "lang": "en", "question": "What syntax lets a generator delegate part of its operations to another one?", "doc": "pep-0380.rst", "evidence": "a generator to delegate part of its", "answerable": true}
+{"id": "a017", "lang": "es", "question": "¿Qué pasa cuando la llamada al subgenerador lanza StopIteration en yield from?", "doc": "pep-0380.rst", "evidence": "call raises StopIteration, the delegating generator is resumed", "answerable": true}
+{"id": "a018", "lang": "en", "question": "Where does Python look for the pyvenv.cfg file?", "doc": "pep-0405.rst", "evidence": "file is found either adjacent to the Python executable", "answerable": true}
+{"id": "a019", "lang": "es", "question": "¿Qué variable de entorno existente controla el prefijo de Python?", "doc": "pep-0405.rst", "evidence": "The ``PYTHONHOME`` environment variable", "answerable": true}
+{"id": "a020", "lang": "en", "question": "What is an enumeration?", "doc": "pep-0435.rst", "evidence": "An enumeration is a set of symbolic names bound to unique, constant values", "answerable": true}
+{"id": "a021", "lang": "es", "question": "¿Cuál es la diferencia clave entre Enum e IntEnum?", "doc": "pep-0435.rst", "evidence": "The key dividing issue between ``Enum`` and ``IntEnum``", "answerable": true}
+{"id": "a022", "lang": "en", "question": "How can I create an enum with the functional API?", "doc": "pep-0435.rst", "evidence": "Animal = Enum('Animal', 'ant bee cat dog')", "answerable": true}
+{"id": "a023", "lang": "en", "question": "What does PEP 448 propose for iterable unpacking?", "doc": "pep-0448.rst", "evidence": "extended usages of the ``*`` iterable unpacking", "answerable": true}
+{"id": "a024", "lang": "es", "question": "¿De qué módulo vienen las anotaciones de tipo estándar?", "doc": "pep-0484.rst", "evidence": "from a pure-Python module ``typing``", "answerable": true}
+{"id": "a025", "lang": "en", "question": "What are stub files used for?", "doc": "pep-0484.rst", "evidence": "Stub files are files containing type hints that are only for use by", "answerable": true}
+{"id": "a026", "lang": "es", "question": "¿Cómo se escribe un comentario de tipo para una variable?", "doc": "pep-0484.rst", "evidence": "# type: Vector[float]", "answerable": true}
+{"id": "a027", "lang": "en", "question": "Which type is consistent with every other type?", "doc": "pep-0484.rst", "evidence": "named ``Any`` which is consistent with", "answerable": true}
+{"id": "a028", "lang": "en", "question": "Are async def functions always coroutines?", "doc": "pep-0492.rst", "evidence": "``async def`` functions are always coroutines", "answerable": true}
+{"id": "a029", "lang": "es", "question": "¿Qué métodos mágicos nuevos se agregan para los context managers asíncronos?", "doc": "pep-0492.rst", "evidence": "Two new magic methods are added: ``__aenter__`` and", "answerable": true}
+{"id": "a030", "lang": "en", "question": "How do asynchronous iterators work with async for?", "doc": "pep-0492.rst", "evidence": "Asynchronous Iterators and \"async for\"", "answerable": true}
+{"id": "a031", "lang": "en", "question": "What are f-strings?", "doc": "pep-0498.rst", "evidence": "F-strings provide a way to embed expressions inside string literals", "answerable": true}
+{"id": "a032", "lang": "es", "question": "¿Qué conversiones como !r permite un f-string?", "doc": "pep-0498.rst", "evidence": "The allowed conversions are ``'!s'``, ``'!r'``", "answerable": true}
+{"id": "a033", "lang": "es", "question": "¿Qué mecanismos de formateo de cadenas existían antes de los f-strings?", "doc": "pep-0498.rst", "evidence": "``str.format()`` [#]_, and ``string.Template``", "answerable": true}
+{"id": "a034", "lang": "en", "question": "Where are variable annotations stored at runtime?", "doc": "pep-0526.rst", "evidence": "``__annotations__`` attribute of that module or class", "answerable": true}
+{"id": "a035", "lang": "es", "question": "¿Cómo se anota una variable de clase con ClassVar?", "doc": "pep-0526.rst", "evidence": "stats: ClassVar[Dict[str, int]] = {}", "answerable": true}
+{"id": "a036", "lang": "en", "question": "Which methods does the dataclass decorator add?", "doc": "pep-0557.rst", "evidence": "The ``@dataclass`` decorator will add the equivalent of these methods", "answerable": true}
+{"id": "a037", "lang": "es", "question": "¿Cuándo se llama a __post_init__ en una dataclass?", "doc": "pep-0557.rst", "evidence": "as ``self.__post_init__()``", "answerable": true}
+{"id": "a038", "lang": "en", "question": "What is the signature of the dataclasses field function?", "doc": "pep-0557.rst", "evidence": "def field(*, default=MISSING, default_factory=MISSING", "answerable": true}
+{"id": "a039", "lang": "en", "question": "What is the formal name of the walrus operator?", "doc": "pep-0572.rst", "evidence": "The construct's formal name is \"Assignment Expressions\"", "answerable": true}
+{"id": "a040", "lang": "es", "question": "¿Qué notación usan las expresiones de asignación?", "doc": "pep-0572.rst", "evidence": "expression using the notation ``NAME := expr``", "answerable": true}
+{"id": "a041", "lang": "en", "question": "Which operators does PEP 584 add to dict?", "doc": "pep-0584.rst", "evidence": "adding merge (``|``) and update (``|=``) operators", "answerable": true}
+{"id": "a042", "lang": "es", "question": "¿La unión de diccionarios es conmutativa?", "doc": "pep-0584.rst", "evidence": "Dict Union Is Not Commutative", "answerable": true}
+{"id": "a043", "lang": "en", "question": "Should I still import List and Dict from typing?", "doc": "pep-0585.rst", "evidence": "Importing those from ``typing`` is deprecated", "answerable": true}
+{"id": "a044", "lang": "es", "question": "¿Puedo anotar con dict[str, list[int]] usando los tipos de la biblioteca estándar?", "doc": "pep-0585.rst", "evidence": "def find(haystack: dict[str, list[int]]) -> int:", "answerable": true}
+{"id": "a045", "lang": "en", "question": "How can I write Union[X, Y] more concisely?", "doc": "pep-0604.rst", "evidence": "writing ``Union[X, Y]`` as ``X | Y``", "answerable": true}
+{"id": "a046", "lang": "es", "question": "¿Se puede usar X | Y en isinstance?", "doc": "pep-0604.rst", "evidence": "``isinstance`` and ``issubclass`` calls", "answerable": true}
+{"id": "a047", "lang": "en", "question": "What happens with zip(strict=True) when the iterables have different lengths?", "doc": "pep-0618.rst", "evidence": "the resulting iterator will raise a ``ValueError`` if", "answerable": true}
+{"id": "a048", "lang": "es", "question": "¿Qué parámetro nuevo se propone para la función zip?", "doc": "pep-0618.rst", "evidence": "optional ``strict`` boolean keyword", "answerable": true}
+{"id": "a049", "lang": "en", "question": "What is a guard in a match statement?", "doc": "pep-0634.rst", "evidence": "guard: 'if' named_expression", "answerable": true}
+{"id": "a050", "lang": "en", "question": "Can a class pattern repeat the same keyword?", "doc": "pep-0634.rst", "evidence": "A class pattern may not repeat the same keyword multiple times", "answerable": true}
+{"id": "a051", "lang": "es", "question": "¿Cuál es la gramática de un bloque case?", "doc": "pep-0634.rst", "evidence": "case_block: \"case\" patterns [guard]", "answerable": true}
+{"id": "a052", "lang": "en", "question": "What does TypeVarTuple enable?", "doc": "pep-0646.rst", "evidence": "we introduce ``TypeVarTuple``, enabling parameterisation", "answerable": true}
+{"id": "a053", "lang": "es", "question": "¿Cómo se usa el operador estrella para desempaquetar tipos variádicos?", "doc": "pep-0646.rst", "evidence": "a new use for the star operator: to 'unpack'", "answerable": true}
+{"id": "a054", "lang": "en", "question": "How do I mark a single TypedDict key as not required?", "doc": "pep-0655.rst", "evidence": "``NotRequired[]``, which can be used on individual items", "answerable": true}
+{"id": "a055", "lang": "es", "question": "¿Qué hace total=False en un TypedDict?", "doc": "pep-0655.rst", "evidence": "class Movie(TypedDict, total=False):", "answerable": true}
+{"id": "a056", "lang": "en", "question": "How do I annotate a method that returns an instance of its own class?", "doc": "pep-0673.rst", "evidence": "def set_scale(self, scale: float) -> Self:", "answerable": true}
+{"id": "a057", "lang": "en", "question": "Is there a new statement for declaring type aliases?", "doc": "pep-0695.rst", "evidence": "a new statement for declaring type aliases", "answerable": true}
+{"id": "a058", "lang": "es", "question": "¿Cómo se declara una función genérica con la nueva sintaxis de parámetros de tipo?", "doc": "pep-0695.rst", "evidence": "def func[T](a: T, b: T) -> T:", "answerable": true}
+{"id": "a059", "lang": "en", "question": "Is the variance of new-style type parameters inferred?", "doc": "pep-0695.rst", "evidence": "Type parameters are inferred to be", "answerable": true}
+{"id": "a060", "lang": "en", "question": "Can f-string expressions contain backslashes?", "doc": "pep-0701.rst", "evidence": "lack of support for backslashes", "answerable": true}
+{"id": "a061", "lang": "es", "question": "¿Se pueden reutilizar las mismas comillas dentro de un f-string anidado?", "doc": "pep-0701.rst", "evidence": "string quotes cannot be reused", "answerable": true}
+{"id": "a062", "lang": "en", "question": "What does the global interpreter lock prevent?", "doc": "pep-0703.rst", "evidence": "prevents multiple threads from executing Python code at the same time", "answerable": true}
+{"id": "a063", "lang": "es", "question": "¿Qué técnica de conteo de referencias propone el PEP para quitar el GIL?", "doc": "pep-0703.rst", "evidence": "Biased reference counting (BRC)", "answerable": true}
+{"id": "a064", "lang": "es", "question": "¿Qué opción de configuración compila CPython sin el GIL?", "doc": "pep-0703.rst", "evidence": "a build configuration (``--disable-gil``)", "answerable": true}
+{"id": "a065", "lang": "en", "question": "How do I declare dependencies inside a single-file script?", "doc": "pep-0723.rst", "evidence": "# /// script", "answerable": true}
+{"id": "a066", "lang": "es", "question": "¿Qué campos de nivel superior puede incluir el bloque de metadatos de un script?", "doc": "pep-0723.rst", "evidence": "top-level fields ``dependencies`` and ``requires-python``", "answerable": true}
+{"id": "u001", "lang": "en", "question": "How do I configure a Kubernetes ingress controller?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u002", "lang": "en", "question": "What is the capital of Australia?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u003", "lang": "en", "question": "How do I center a div with CSS flexbox?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u004", "lang": "en", "question": "How do I set up streaming replication in PostgreSQL?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u005", "lang": "es", "question": "¿Cuál es la receta tradicional del gallo pinto?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u006", "lang": "es", "question": "¿Cómo se configura un router wifi doméstico?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u007", "lang": "es", "question": "¿Qué es la fotosíntesis?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u008", "lang": "es", "question": "¿Cuántos jugadores tiene un equipo de fútbol en la cancha?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u009", "lang": "es", "question": "¿Cómo se instala Java en Ubuntu?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u010", "lang": "es", "question": "¿Cómo funciona el recolector de basura de la JVM?", "doc": null, "evidence": null, "answerable": false, "hard_negative": false}
+{"id": "u011", "lang": "en", "question": "What does the WSGI specification require from a web application callable?", "doc": null, "evidence": null, "answerable": false, "hard_negative": true}
+{"id": "u012", "lang": "en", "question": "How does the asyncio event loop schedule callbacks on Windows?", "doc": null, "evidence": null, "answerable": false, "hard_negative": true}
+{"id": "u013", "lang": "es", "question": "¿Qué propone el PEP de las expresiones lambda con varias líneas?", "doc": null, "evidence": null, "answerable": false, "hard_negative": true}
+{"id": "u014", "lang": "en", "question": "How do I publish a package to PyPI with twine?", "doc": null, "evidence": null, "answerable": false, "hard_negative": true}
+{"id": "u015", "lang": "es", "question": "¿Cómo se configura el logging con un archivo dictConfig?", "doc": null, "evidence": null, "answerable": false, "hard_negative": true}
+{"id": "u016", "lang": "en", "question": "What are the rules for Python wheel file names?", "doc": null, "evidence": null, "answerable": false, "hard_negative": true}
