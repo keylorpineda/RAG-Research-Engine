@@ -7,6 +7,7 @@ script in the repository that you can run again.
 - [Abstention](#abstention)
 - [Cohere embeddings](#cohere-embeddings)
 - [Experiments: chunk size and embedding model](#experiments-chunk-size-and-embedding-model)
+- [Experiment: translating questions for lexical search](#experiment-translating-questions-for-lexical-search)
 - [Vector search latency](#vector-search-latency)
 
 ## Retrieval quality
@@ -149,6 +150,36 @@ The runner wipes the database it is given and refuses any database whose name do
 `eval`, `test` or `bench`. CI runs it on every pull request that touches `app/`, `eval/` or
 `migrations/`, and fails if hybrid or dense Recall@5, or the abstention balanced accuracy,
 drop more than 3 points below `eval/results/baseline.json`.
+
+## Experiment: translating questions for lexical search
+
+Full-text search matches words, and the PEPs are in English: a Spanish question shares almost
+none of them. With `LEXICAL_TRANSLATION=true` the engine asks the language model for an English
+version of non-English questions and uses it **only** for full-text search; dense search, the
+reranker, the abstention gate and the answer keep the original question. English questions are
+detected and left alone.
+
+MiniLM, 1,000-character chunks, translations by `openai/gpt-oss-120b` on Groq
+(`eval/results/minilm-translation.json`):
+
+| Mode | Recall@5 | Recall@10 | MRR@10 | Recall@5 EN | Recall@5 ES | p50 |
+| :-- | --: | --: | --: | --: | --: | --: |
+| lexical | 0.455 | 0.561 | 0.275 | 0.667 | 0.200 | 13 ms |
+| lexical + translation | 0.545 | 0.667 | 0.373 | 0.667 | **0.400** | 16 ms |
+| hybrid | 0.530 | 0.667 | 0.350 | 0.583 | 0.467 | 52 ms |
+| hybrid + translation | **0.545** | **0.727** | **0.376** | 0.583 | **0.500** | 121 ms |
+
+- Spanish lexical Recall@5 doubles (0.200 to 0.400). English numbers do not move, as they
+  should: those questions are never translated.
+- Hybrid gains less (+3 points in Spanish, +6 points of Recall@10 overall), because its dense
+  half already crossed languages.
+- The cost is one model call per new non-English question (cached afterwards); the median
+  latency above includes it. If the call fails, the original question is searched.
+- **Default:** off, so the engine works without a language model for retrieval. The demo
+  configurations turn it on.
+
+**Reproduce.** `EVAL_DATABASE_URL=... uv run python -m eval.run --translate --tag minilm-translation`
+(needs `GROQ_API_KEY`).
 
 ## Vector search latency
 
