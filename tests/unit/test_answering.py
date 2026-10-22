@@ -64,7 +64,14 @@ def test_passages_are_numbered_from_one() -> None:
     prompt = build_user_prompt("Why?", [_hit(4, "first"), _hit(9, "second", "b.md")])
     assert "[1] doc.txt (chunk 4)\nfirst" in prompt
     assert "[2] b.md (chunk 9)\nsecond" in prompt
-    assert prompt.endswith("Question: Why?")
+    assert "Question: Why?" in prompt
+
+
+def test_the_user_prompt_ends_with_the_citation_rule() -> None:
+    prompt = build_user_prompt("Why?", [_hit(1)])
+    _, reminder = prompt.rsplit("Question: Why?", 1)
+    assert "[n]" in reminder
+    assert NO_ANSWER in reminder
 
 
 def test_system_prompt_defines_the_refusal_token() -> None:
