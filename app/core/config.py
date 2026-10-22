@@ -44,7 +44,12 @@ class Settings(BaseSettings):
     uploads_dir: str = "uploads"
     max_upload_mb: int = 20
     max_files_per_upload: int = 10
-    ingestion_poll_interval_ms: int = 2000
+    # Ingestion worker (python -m app.worker). EMBEDDED_WORKER runs one inside the API process,
+    # handy for a single-container setup.
+    embedded_worker: bool = False
+    worker_poll_seconds: float = 2.0
+    job_lease_seconds: float = 900.0
+    job_max_attempts: int = 5
 
     @field_validator("database_url")
     @classmethod
