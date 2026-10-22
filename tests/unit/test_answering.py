@@ -204,3 +204,39 @@ def test_groq_sends_the_reasoning_effort_when_set() -> None:
     llm = GroqLLM("key", reasoning_effort="low", client=httpx.Client(), sleep=lambda _: None)
     llm.complete("s", "u")
     assert json.loads(route.calls[0].request.content)["reasoning_effort"] == "low"
+
+
+class FakeTranslator:
+    def for_lexical(self, question: str) -> str:
+        return f"translated {question}"
+
+
+@pytest.mark.parametrize(
+    ("mode", "expected"),
+    [
+        (RetrievalMode.HYBRID, "translated question"),
+        (RetrievalMode.LEXICAL, "translated question"),
+        (RetrievalMode.DENSE, None),
+    ],
+)
+def test_the_translation_reaches_only_the_lexical_search(
+    monkeypatch: pytest.MonkeyPatch, mode: RetrievalMode, expected: str | None
+) -> None:
+    seen: dict[str, Any] = {}
+
+    def fake_retrieve(_db: Any, question: str, **kwargs: Any) -> Retrieval:
+        seen.update(kwargs, question=question)
+        return Retrieval([], None)
+
+    monkeypatch.setattr(service, "retrieve", fake_retrieve)
+    answer_question(
+        FakeSession(),  # type: ignore[arg-type]
+        "question",
+        AnswerOptions(mode=mode),
+        embeddings=HashEmbeddings(),
+        llm=FakeLLM("unused"),
+        translator=FakeTranslator(),  # type: ignore[arg-type]
+    )
+
+    assert seen["question"] == "question"
+    assert seen["lexical_query"] == expected
