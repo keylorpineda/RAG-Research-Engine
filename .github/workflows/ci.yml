@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    env:
+      MODEL_CACHE_DIR: ~/.cache/fastembed
+
     steps:
       - uses: actions/checkout@v4
 
@@ -26,8 +29,14 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Cache embedding model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/fastembed
+          key: fastembed-${{ hashFiles('app/providers/embeddings.py') }}
+
       - name: Install
-        run: uv sync --frozen
+        run: uv sync --frozen --all-extras
 
       - name: Format
         run: uv run ruff format --check .
