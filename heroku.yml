@@ -1,0 +1,7 @@
+# Heroku container deploy (docs/DEPLOY.md). The image's entrypoint applies the migrations and
+# serves on $PORT; the build skips the local embedding model so the API fits in 512 MB.
+build:
+  docker:
+    web: Dockerfile
+  config:
+    EXTRAS: none
