@@ -55,6 +55,8 @@ class Settings(BaseSettings):
     hnsw_ef_search: int = 100
     chunk_size: int = 1000  # characters
     chunk_overlap: int = 200
+    # "sections": split at headings first, then by size (app/ingestion/sections.py).
+    chunking: Literal["window", "sections"] = "window"
     rerank_provider: Literal["none", "cohere"] = "none"
     cohere_rerank_model: str = "rerank-v3.5"
     # Trial keys allow 10 rerank calls per minute.
