@@ -1,0 +1,138 @@
+<h1 class="page-title rise">{{ t().title }}</h1>
+
+<form class="ask rise" (submit)="onSubmit($event)">
+  <label for="question" class="sr-only">{{ t().question }}</label>
+  <div class="box">
+    <textarea
+      #box
+      id="question"
+      rows="2"
+      [maxLength]="max"
+      [placeholder]="t().placeholder"
+      [value]="store.question()"
+      (input)="store.question.set(box.value)"
+      (keydown)="onKey($event)"
+    ></textarea>
+    <span class="count" aria-hidden="true">{{ store.question().length }} / {{ max }}</span>
+  </div>
+  <div class="controls">
+    <app-segmented [options]="modes()" [label]="t().modeLabel" [(value)]="store.mode" />
+    <app-segmented class="k" [options]="ks" [label]="t().kLabel" [(value)]="store.k" />
+    <div class="submit">
+      <kbd aria-hidden="true">{{ t().shortcut }}</kbd>
+      <button type="submit" class="primary" [disabled]="!store.canAsk()">{{ t().submit }}</button>
+    </div>
+  </div>
+</form>
+
+<div class="result" aria-live="polite" [attr.aria-busy]="store.state() === 'loading'">
+  @switch (store.state()) {
+    @case ('idle') {
+      <section class="intro rise">
+        <app-illustration name="retrieval" [label]="i18n.t().art.retrieval" [size]="180" />
+        <div>
+          <h2>{{ t().idleTitle }}</h2>
+          <p>{{ t().idleBody }}</p>
+          <div class="samples">
+            <span>{{ t().examples }}</span>
+            @for (sample of t().samples; track sample) {
+              <button type="button" (click)="useSample(sample)">{{ sample }}</button>
+            }
+          </div>
+        </div>
+      </section>
+    }
+    @case ('loading') {
+      <section class="loading">
+        <div class="answer skeleton-card">
+          <app-illustration name="pipeline" [label]="i18n.t().art.pipeline" [size]="150" />
+          <p class="searching">{{ t().searching }}</p>
+          <span class="line" style="width: 92%"></span>
+          <span class="line" style="width: 78%"></span>
+          <span class="line" style="width: 64%"></span>
+        </div>
+        <div class="sources">
+          @for (i of [0, 1, 2]; track i) {
+            <span class="skeleton" [style.animation-delay]="i * 0.12 + 's'"></span>
+          }
+        </div>
+      </section>
+    }
+    @case ('error') {
+      <p class="error" role="alert">{{ store.error() }}</p>
+    }
+    @case ('done') {
+      @let r = store.response()!;
+      @if (r.answered && r.answer) {
+        <div class="columns">
+          <section class="answer rise" aria-labelledby="answer-title">
+            <div class="answer-head">
+              <h2 id="answer-title">{{ t().answer }}</h2>
+              <span class="meta">
+                {{
+                  i18n.format(t().meta, { n: store.citedCount(), s: i18n.decimal(store.seconds()) })
+                }}
+              </span>
+              <button type="button" class="copy" (click)="copy()">
+                @if (copied()) {
+                  <svg class="check" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 12l5 5L20 7" />
+                  </svg>
+                  {{ t().copied }}
+                } @else {
+                  <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="8" y="8" width="12" height="12" rx="2.5" />
+                    <path
+                      d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"
+                    />
+                  </svg>
+                  {{ t().copy }}
+                }
+              </button>
+            </div>
+            <app-answer-view
+              [answer]="r.answer"
+              [refs]="r.refs"
+              [active]="store.active()"
+              (highlight)="store.active.set($event)"
+              (open)="openPassage($event)"
+            />
+            @if (r.invalidCitations.length) {
+              <p class="removed">
+                {{ i18n.format(t().removed, { list: r.invalidCitations.join(', ') }) }}
+              </p>
+            }
+            @if (r.evidence.bestSimilarity !== null) {
+              <app-evidence-meter
+                [best]="r.evidence.bestSimilarity"
+                [min]="r.evidence.minSimilarity"
+              />
+            }
+          </section>
+
+          <aside class="sources" aria-labelledby="sources-title">
+            <div class="sources-head">
+              <h2 id="sources-title">{{ t().sources }}</h2>
+              <span class="legend">
+                <span><i class="dense"></i>{{ t().similarity }}</span>
+                <span><i class="lex"></i>{{ t().keywords }}</span>
+              </span>
+            </div>
+            @for (ref of r.refs; track ref.n; let i = $index) {
+              <app-passage-card
+                class="rise"
+                [style.animation-delay]="i * 0.06 + 's'"
+                [ref]="ref"
+                [maxLexical]="store.maxLexical()"
+                [active]="store.active() === ref.n"
+                [dim]="store.active() !== null && store.active() !== ref.n"
+              />
+            }
+          </aside>
+        </div>
+      } @else {
+        <app-abstain-card [response]="r" (rephrase)="rephrase()" />
+      }
+    }
+  }
+</div>

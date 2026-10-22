@@ -1,0 +1,142 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) 32px;
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+}
+
+.figure strong {
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.figure span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.figure i {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.answered {
+  color: var(--accent);
+}
+
+.refused {
+  color: var(--rose);
+}
+
+.answered-key {
+  background: var(--accent);
+}
+
+.refused-key {
+  background: var(--rose);
+}
+
+svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.grid {
+  stroke: var(--line-soft);
+}
+
+.axis {
+  fill: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 1200;
+  animation: draw 1.4s var(--ease) both;
+}
+
+.answered-line {
+  stroke: var(--accent);
+}
+
+.refused-line {
+  stroke: var(--rose);
+  animation-delay: 150ms;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.marker {
+  transition: transform var(--duration-emphasis) var(--ease);
+}
+
+.marker line {
+  stroke: var(--text);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.marker circle {
+  stroke: var(--surface);
+  stroke-width: 2.5;
+  transition: cy var(--duration-emphasis) var(--ease);
+}
+
+.dot-answered {
+  fill: var(--accent);
+}
+
+.dot-refused {
+  fill: var(--rose);
+}
+
+label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.tau {
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+
+input[type='range'] {
+  width: 100%;
+  height: var(--target);
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
