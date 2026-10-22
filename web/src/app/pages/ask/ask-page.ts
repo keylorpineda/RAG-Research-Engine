@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   ElementRef,
   computed,
   inject,
@@ -27,7 +28,7 @@ import { PassageCard } from './passage-card';
   templateUrl: './ask-page.html',
   styleUrl: './ask-page.css',
 })
-export class AskPage {
+export class AskPage implements OnInit {
   private readonly document = inject(DOCUMENT);
   protected readonly store = inject(AskStore);
   protected readonly i18n = inject(I18nService);
@@ -49,6 +50,10 @@ export class AskPage {
     value: k,
     label: String(k),
   }));
+
+  ngOnInit(): void {
+    this.store.refreshQuota();
+  }
 
   protected onKey(event: KeyboardEvent): void {
     if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {

@@ -1,0 +1,11 @@
+# HTTPS certificate issued and renewed automatically for API_DOMAIN. Without a domain of your own,
+# <public-ip>.sslip.io resolves to the VM, for example api.129.146.1.2.sslip.io.
+{$API_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy api:8000
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+}

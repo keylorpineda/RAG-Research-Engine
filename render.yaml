@@ -1,0 +1,44 @@
+# Render blueprint for the public demo API (docs/DEPLOY.md). The database lives on Neon; secrets
+# marked `sync: false` are asked for when the blueprint is created and never stored here.
+services:
+  - type: web
+    name: research-engine-api
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Build: Cohere only, without the local embedding runtime, to fit in 512 MB.
+      - key: EXTRAS
+        value: none
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: COHERE_API_KEY
+        sync: false
+      - key: EMBEDDING_PROVIDER
+        value: cohere
+      - key: RERANK_PROVIDER
+        value: cohere
+      # Trial key limits, with some headroom.
+      - key: COHERE_TOKENS_PER_MINUTE
+        value: "90000"
+      - key: COHERE_EMBED_REQUESTS_PER_MINUTE
+        value: "90"
+      - key: COHERE_RERANK_REQUESTS_PER_MINUTE
+        value: "9"
+      # Public demo: the PEP corpus is preloaded, visitors only ask.
+      - key: UPLOADS_ENABLED
+        value: "false"
+      - key: DAILY_QUESTION_LIMIT
+        value: "15"
+      - key: QUESTIONS_PER_CLIENT_PER_HOUR
+        value: "5"
+      - key: ANSWER_CACHE_SIZE
+        value: "256"
+      - key: TRUST_PROXY_HEADERS
+        value: "true"

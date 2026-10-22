@@ -39,6 +39,8 @@ export interface HealthOut {
   uploadsEnabled: boolean;
   maxUploadMb: number;
   maxFilesPerUpload: number;
+  /** Null when the server has no daily cap. */
+  questionsLeftToday: number | null;
   jobs: Record<string, number>;
 }
 

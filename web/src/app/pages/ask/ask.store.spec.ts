@@ -61,6 +61,33 @@ describe('AskStore', () => {
     expect(store.error()).toBe('Daily question limit reached.');
   });
 
+  it('words the demo limits in the visitor language and shows the cap as spent', () => {
+    TestBed.inject(I18nService).setLang('es');
+    store.question.set('¿Algo?');
+    store.ask();
+    http
+      .expectOne('/api/query')
+      .flush(
+        { error: { code: 'daily_limit_reached', message: 'The demo has used today.' } },
+        { status: 429, statusText: 'Too Many Requests' },
+      );
+
+    expect(store.error()).toContain('vuelve mañana');
+    expect(store.questionsLeft()).toBe(0);
+  });
+
+  it('refreshes the questions left after each answer when there is a cap', () => {
+    store.refreshQuota();
+    http.expectOne('/api/health').flush({ questionsLeftToday: 3 });
+    expect(store.questionsLeft()).toBe(3);
+
+    store.question.set('Anything?');
+    store.ask();
+    http.expectOne('/api/query').flush(answered());
+    http.expectOne('/api/health').flush({ questionsLeftToday: 2 });
+    expect(store.questionsLeft()).toBe(2);
+  });
+
   it('drops the previous request when a new question is asked', () => {
     store.question.set('First?');
     store.ask();

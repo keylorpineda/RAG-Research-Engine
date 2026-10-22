@@ -28,6 +28,8 @@ export class AskStore {
   readonly error = signal<string | null>(null);
   /** Passage number highlighted from a citation. */
   readonly active = signal<number | null>(null);
+  /** Remaining questions under the server's daily demo cap; null when there is none. */
+  readonly questionsLeft = signal<number | null>(null);
 
   readonly canAsk = computed(() => {
     const q = this.question().trim();
@@ -40,6 +42,13 @@ export class AskStore {
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.request?.unsubscribe());
+  }
+
+  refreshQuota(): void {
+    this.api.health().subscribe({
+      next: (health) => this.questionsLeft.set(health.questionsLeftToday ?? null),
+      error: () => undefined,
+    });
   }
 
   ask(): void {
@@ -57,18 +66,27 @@ export class AskStore {
         this.seconds.set((performance.now() - started) / 1000);
         this.response.set(response);
         this.state.set('done');
+        if (this.questionsLeft() !== null) this.refreshQuota();
       },
       error: (error: unknown) => {
         this.response.set(null);
         this.error.set(this.describe(error));
         this.state.set('error');
+        if (error instanceof ApiError && error.code === 'daily_limit_reached') {
+          this.questionsLeft.set(0);
+        }
       },
     });
   }
 
   private describe(error: unknown): string {
     if (error instanceof ApiError) {
-      return error.isNetwork ? this.i18n.t().errors.network : error.message;
+      const errors = this.i18n.t().errors;
+      if (error.isNetwork) return errors.network;
+      if (error.code === 'daily_limit_reached' || error.code === 'too_many_requests') {
+        return errors[error.code];
+      }
+      return error.message;
     }
     return this.i18n.t().errors.unknown;
   }

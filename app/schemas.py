@@ -50,6 +50,9 @@ class HealthOut(Schema):
     uploads_enabled: bool
     max_upload_mb: int
     max_files_per_upload: int
+    questions_left_today: int | None = Field(
+        default=None, description="Remaining questions under the daily demo cap, if there is one."
+    )
     jobs: dict[str, int] = Field(description="Job count per status.")
 
 

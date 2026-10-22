@@ -58,6 +58,16 @@ textarea:focus {
   gap: var(--space-3);
 }
 
+.quota {
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.quota.out {
+  color: var(--rose-fg);
+}
+
 .submit {
   margin-left: auto;
   display: flex;
