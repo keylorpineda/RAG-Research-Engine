@@ -19,6 +19,7 @@ from app.providers.llm import LLMProvider
 from app.providers.rerank import Reranker
 from app.retrieval.ranking import Scored, select_passages
 from app.retrieval.retriever import Candidate, Retrieval, RetrievalMode, retrieve
+from app.retrieval.translation import QueryTranslator
 
 # Retrieve more than k so the token budget can skip long passages and still fill k slots.
 CANDIDATE_FACTOR = 4
@@ -66,7 +67,13 @@ def answer_question(
     embeddings: EmbeddingProvider,
     llm: LLMProvider | Callable[[], LLMProvider],
     reranker: Reranker | None = None,
+    translator: QueryTranslator | None = None,
 ) -> Answer:
+    lexical_query = (
+        translator.for_lexical(question)
+        if translator and options.mode != RetrievalMode.DENSE
+        else None
+    )
     retrieval = retrieve(
         db,
         question,
@@ -76,6 +83,7 @@ def answer_question(
         ef_search=options.ef_search,
         reranker=reranker,
         rerank_candidates=options.rerank_candidates,
+        lexical_query=lexical_query,
     )
     best = retrieval.best_dense_score
     if not retrieval.candidates:

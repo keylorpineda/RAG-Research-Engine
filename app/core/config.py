@@ -60,6 +60,8 @@ class Settings(BaseSettings):
     # Trial keys allow 10 rerank calls per minute.
     cohere_rerank_requests_per_minute: int | None = None
     rerank_candidates: int = 30
+    # Translate non-English questions for the lexical retriever only (app/retrieval/translation.py).
+    lexical_translation: bool = False
     uploads_dir: str = "uploads"
     max_upload_mb: int = 20
     max_files_per_upload: int = 10
