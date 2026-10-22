@@ -197,6 +197,7 @@ def test_query_response_shape(client: TestClient, monkeypatch: pytest.MonkeyPatc
                 "docId": 3,
                 "filename": "pep-492.txt",
                 "chunkIndex": 2,
+                "section": None,
                 "score": 0.03,
                 "denseScore": 0.81,
                 "lexicalScore": 0.2,

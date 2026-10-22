@@ -54,8 +54,19 @@ services:
     depends_on:
       - api
 
+  # Optional local language model: docker compose --profile local-llm up
+  # then: docker compose exec ollama ollama pull qwen2.5:7b-instruct
+  # and set LLM_PROVIDER=openai_compatible, LLM_BASE_URL=http://ollama:11434/v1 in .env.
+  ollama:
+    image: ollama/ollama:0.40.8
+    profiles: ["local-llm"]
+    restart: unless-stopped
+    volumes:
+      - ollama:/root/.ollama
+
 volumes:
   pg_data:
   uploads:
   models:
   caddy_data:
+  ollama:

@@ -56,6 +56,10 @@ curl -s localhost:8000/api/query -H "Content-Type: application/json" -d '{"q": "
 
 Interactive API docs at <http://localhost:8000/docs>.
 
+No keys and no internet: run the answers on a local model too, with
+`docker compose --profile local-llm up` and `LLM_PROVIDER=openai_compatible` (Ollama). Embeddings
+are already local by default.
+
 <details>
 <summary><b>Responses</b></summary>
 
@@ -91,9 +95,13 @@ Interactive API docs at <http://localhost:8000/docs>.
 | Variable | Default | |
 | :-- | :-- | :-- |
 | `GROQ_API_KEY` | | Language model for the answers |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | With `GROQ_REASONING_EFFORT` (`low`) for reasoning models |
+| `LLM_PROVIDER` | `groq` | `openai_compatible`: a local server (Ollama, llama.cpp) at `LLM_BASE_URL` |
 | `EMBEDDING_PROVIDER` | `local` | `local` (ONNX on the CPU, no key) or `cohere` |
 | `RERANK_PROVIDER` | `none` | `cohere` reranks the top `RERANK_CANDIDATES` (30) |
+| `LEXICAL_TRANSLATION` | `false` | Translate non-English questions for full-text search (one model call, cached) |
 | `MIN_SIMILARITY` | per model | Abstain below this best similarity (0.55 local, 0.60 Cohere) |
+| `CHUNKING` | `window` | `sections`: split at headings first (better recall, recalibrate `MIN_SIMILARITY`) |
 | `CHUNK_SIZE` / `CHUNK_OVERLAP` | `1000` / `200` | Characters |
 | `COHERE_*_PER_MINUTE` | off | Token and call budgets for Cohere trial keys |
 | `EMBEDDED_WORKER` | `false` | Run one worker inside the API process |

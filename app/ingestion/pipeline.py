@@ -23,11 +23,13 @@ class EmptyDocumentError(ValueError):
 
 def ingest_document(db: Session, document: Document, embeddings: EmbeddingProvider) -> int:
     """Extract, chunk and embed ``document``. Returns the number of chunks. Does not commit."""
-    texts = chunking.chunk(
+    chunks = chunking.chunk_document(
         extract.extract(document.path, document.mime),
         size=settings.chunk_size,
         overlap=settings.chunk_overlap,
+        strategy=settings.chunking,
     )
+    texts = [c.text for c in chunks]
     if not texts:
         raise EmptyDocumentError("No text could be extracted from the document.")
 
@@ -37,11 +39,12 @@ def ingest_document(db: Session, document: Document, embeddings: EmbeddingProvid
         DocChunk(
             document_id=document.id,
             chunk_index=i,
-            text=t,
-            token_count=chunking.approx_tokens(t),
+            section=c.section,
+            text=c.text,
+            token_count=chunking.approx_tokens(c.text),
             embedding=v,
         )
-        for i, (t, v) in enumerate(zip(texts, vectors, strict=True))
+        for i, (c, v) in enumerate(zip(chunks, vectors, strict=True))
     )
     document.embedding_model = settings.embedding_model
     document.status = DocumentStatus.READY

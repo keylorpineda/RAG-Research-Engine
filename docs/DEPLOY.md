@@ -1,15 +1,16 @@
 # Deploying the demo
 
-The web app is static and goes on Vercel. The API and its database have two free routes:
+The web app is static and goes on Vercel. The API and its database have three routes:
 
-| | A. Render + Neon | B. One Oracle Cloud VM |
-| :-- | :-- | :-- |
-| API | Render free web service (512 MB, sleeps after 15 min idle, ~1 min to wake) | Always Free Ampere A1 VM (up to 4 cores, 24 GB) |
-| Database | Neon free Postgres with pgvector | Postgres + pgvector in Docker on the same VM |
-| Embeddings | Cohere (local models do not fit in 512 MB) | Local or Cohere |
-| You maintain | Nothing | The VM: updates, firewall |
+| | A. Render + Neon | B. One Oracle Cloud VM | C. Heroku |
+| :-- | :-- | :-- | :-- |
+| Cost | Free | Free (Always Free) | About 12 USD a month: Basic dyno + Postgres Essential-0, covered by the GitHub Student Pack credit (13 USD a month, 24 months) |
+| API | 512 MB, sleeps after 15 min idle, ~1 min to wake | Ampere A1 VM, up to 4 cores and 24 GB | 512 MB, always on |
+| Database | Neon Postgres with pgvector | Postgres + pgvector in Docker on the VM | Heroku Postgres with pgvector |
+| Embeddings | Cohere (local models do not fit in 512 MB) | Local or Cohere | Cohere |
+| You maintain | Nothing | The VM: updates, firewall | Nothing |
 
-Both use the same image (`Dockerfile`). Its entrypoint applies the migrations, then serves on
+All three use the same image (`Dockerfile`). Its entrypoint applies the migrations, then serves on
 `$PORT`. Keys live only in the host's settings, never in the repository or the web app.
 
 ## Demo settings
@@ -20,6 +21,7 @@ Both use the same image (`Dockerfile`). Its entrypoint applies the migrations, t
 | `DAILY_QUESTION_LIMIT` | `15` | Counted in the `queries` table. A Cohere trial key allows about 1,000 calls a month, and a question costs two (embed + rerank). |
 | `QUESTIONS_PER_CLIENT_PER_HOUR` | `5` | So one visitor cannot spend the day's questions. |
 | `ANSWER_CACHE_SIZE` | `256` | Repeated questions, such as the suggested ones, are answered from memory: free, and not counted. |
+| `LEXICAL_TRANSLATION` | `true` | Spanish questions also match the English PEPs in full-text search (docs/BENCHMARKS.md). |
 | `TRUST_PROXY_HEADERS` | `true` | Read the visitor's address from `X-Forwarded-For`, set by Vercel and Render or Caddy. |
 | `COHERE_*_PER_MINUTE` | `90000` / `90` / `9` | Stay under the trial key's per-minute limits. |
 
@@ -67,6 +69,37 @@ says so in the visitor's language.
    quota, so `DAILY_QUESTION_LIMIT` can stay unset.
 3. Update the VM now and then (`sudo apt upgrade`). Oracle can reclaim Always Free instances that
    stay almost idle for a week.
+
+## C. Heroku
+
+1. **App.** With the Heroku CLI, from the repository:
+
+   ```bash
+   heroku create research-engine-api --stack container
+   heroku addons:create heroku-postgresql:essential-0
+   heroku pg:psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
+   ```
+
+   Or use the Deploy button flow with `app.json`, which declares the same: container stack,
+   a Basic dyno, the Postgres add-on and the demo settings.
+2. **Settings.** `app.json` sets the demo values; add the keys:
+
+   ```bash
+   heroku config:set GROQ_API_KEY=… COHERE_API_KEY=… EMBEDDING_PROVIDER=cohere RERANK_PROVIDER=cohere      UPLOADS_ENABLED=false DAILY_QUESTION_LIMIT=15 QUESTIONS_PER_CLIENT_PER_HOUR=5      ANSWER_CACHE_SIZE=256 TRUST_PROXY_HEADERS=true
+   ```
+
+   Heroku sets `DATABASE_URL` (`postgres://…`); the API converts it to the psycopg driver.
+3. **Deploy.** `git push heroku main`. `heroku.yml` builds the image without the local model
+   (`EXTRAS=none`). Connecting the GitHub repository in the dashboard deploys `main` on every
+   release instead.
+4. **Load the PEPs** once, from your machine, with the database URL from
+   `heroku config:get DATABASE_URL`:
+
+   ```bash
+   DATABASE_URL="$(heroku config:get DATABASE_URL)" EMBEDDING_PROVIDER=cohere COHERE_API_KEY=…      uv run python -m eval.seed
+   ```
+
+   Then point the Vercel rewrite at `https://<app>.herokuapp.com`.
 
 ## Web app on Vercel
 

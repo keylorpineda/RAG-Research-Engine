@@ -64,7 +64,14 @@ def test_passages_are_numbered_from_one() -> None:
     prompt = build_user_prompt("Why?", [_hit(4, "first"), _hit(9, "second", "b.md")])
     assert "[1] doc.txt (chunk 4)\nfirst" in prompt
     assert "[2] b.md (chunk 9)\nsecond" in prompt
-    assert prompt.endswith("Question: Why?")
+    assert "Question: Why?" in prompt
+
+
+def test_the_user_prompt_ends_with_the_citation_rule() -> None:
+    prompt = build_user_prompt("Why?", [_hit(1)])
+    _, reminder = prompt.rsplit("Question: Why?", 1)
+    assert "[n]" in reminder
+    assert NO_ANSWER in reminder
 
 
 def test_system_prompt_defines_the_refusal_token() -> None:
@@ -197,3 +204,39 @@ def test_groq_sends_the_reasoning_effort_when_set() -> None:
     llm = GroqLLM("key", reasoning_effort="low", client=httpx.Client(), sleep=lambda _: None)
     llm.complete("s", "u")
     assert json.loads(route.calls[0].request.content)["reasoning_effort"] == "low"
+
+
+class FakeTranslator:
+    def for_lexical(self, question: str) -> str:
+        return f"translated {question}"
+
+
+@pytest.mark.parametrize(
+    ("mode", "expected"),
+    [
+        (RetrievalMode.HYBRID, "translated question"),
+        (RetrievalMode.LEXICAL, "translated question"),
+        (RetrievalMode.DENSE, None),
+    ],
+)
+def test_the_translation_reaches_only_the_lexical_search(
+    monkeypatch: pytest.MonkeyPatch, mode: RetrievalMode, expected: str | None
+) -> None:
+    seen: dict[str, Any] = {}
+
+    def fake_retrieve(_db: Any, question: str, **kwargs: Any) -> Retrieval:
+        seen.update(kwargs, question=question)
+        return Retrieval([], None)
+
+    monkeypatch.setattr(service, "retrieve", fake_retrieve)
+    answer_question(
+        FakeSession(),  # type: ignore[arg-type]
+        "question",
+        AnswerOptions(mode=mode),
+        embeddings=HashEmbeddings(),
+        llm=FakeLLM("unused"),
+        translator=FakeTranslator(),  # type: ignore[arg-type]
+    )
+
+    assert seen["question"] == "question"
+    assert seen["lexical_query"] == expected

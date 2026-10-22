@@ -23,7 +23,7 @@ import { I18nService } from '../../core/i18n/i18n.service';
       @if (!r.cited) {
         <span class="tag">{{ t().notCited }}</span>
       }
-      <span class="chunk">§ {{ r.chunkIndex }}</span>
+      <span class="chunk" [title]="r.section ?? ''">§ {{ r.section ?? r.chunkIndex }}</span>
     </div>
     <p>{{ r.text }}</p>
     <div class="scores">

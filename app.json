@@ -1,0 +1,64 @@
+{
+  "name": "Research Engine",
+  "description": "Retrieval-augmented answers with checked citations, hybrid search and an abstention gate.",
+  "repository": "https://github.com/keylorpineda/RAG-Research-Engine",
+  "keywords": [
+    "rag",
+    "fastapi",
+    "pgvector",
+    "retrieval"
+  ],
+  "stack": "container",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:essential-0"
+    }
+  ],
+  "env": {
+    "GROQ_API_KEY": {
+      "description": "Groq key for the answers (console.groq.com/keys)."
+    },
+    "COHERE_API_KEY": {
+      "description": "Cohere key for embeddings and reranking; use one for the demo only."
+    },
+    "EMBEDDING_PROVIDER": {
+      "value": "cohere"
+    },
+    "RERANK_PROVIDER": {
+      "value": "cohere"
+    },
+    "COHERE_TOKENS_PER_MINUTE": {
+      "value": "90000"
+    },
+    "COHERE_EMBED_REQUESTS_PER_MINUTE": {
+      "value": "90"
+    },
+    "COHERE_RERANK_REQUESTS_PER_MINUTE": {
+      "value": "9"
+    },
+    "UPLOADS_ENABLED": {
+      "value": "false"
+    },
+    "DAILY_QUESTION_LIMIT": {
+      "value": "15"
+    },
+    "QUESTIONS_PER_CLIENT_PER_HOUR": {
+      "value": "5"
+    },
+    "ANSWER_CACHE_SIZE": {
+      "value": "256"
+    },
+    "TRUST_PROXY_HEADERS": {
+      "value": "true"
+    },
+    "LEXICAL_TRANSLATION": {
+      "value": "true"
+    }
+  }
+}

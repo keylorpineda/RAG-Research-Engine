@@ -62,6 +62,7 @@ def lexical_search(db: Session, question: str, *, k: int) -> list[Hit]:
             DocChunk.text,
             DocChunk.token_count,
             rank.label("score"),
+            DocChunk.section,
         )
         .join(Document)
         .where(Document.status == DocumentStatus.READY, DocChunk.tsv.bool_op("@@")(tsquery))

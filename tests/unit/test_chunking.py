@@ -2,7 +2,7 @@ import itertools
 
 import pytest
 
-from app.ingestion.chunking import approx_tokens, chunk
+from app.ingestion.chunking import approx_tokens, chunk, chunk_document
 
 
 def test_empty_text_has_no_chunks() -> None:
@@ -45,3 +45,21 @@ def test_words_longer_than_the_limit_are_split() -> None:
 def test_approx_tokens_is_never_zero() -> None:
     assert approx_tokens("") == 1
     assert approx_tokens("a" * 400) == 100
+
+
+def test_window_strategy_keeps_the_old_chunks_without_sections() -> None:
+    text = "# Title\n\n" + "word " * 300
+    chunks = chunk_document(text, size=200, overlap=40, strategy="window")
+    assert [c.text for c in chunks] == chunk(text, size=200, overlap=40)
+    assert {c.section for c in chunks} == {None}
+
+
+def test_section_strategy_never_spans_two_sections() -> None:
+    text = "intro words\n\n# Install\n\n" + "pip " * 60 + "\n\n# Usage\n\n" + "run " * 60
+    chunks = chunk_document(text, size=120, overlap=30, strategy="sections")
+
+    assert chunks[0].section is None
+    assert {c.section for c in chunks} == {None, "Install", "Usage"}
+    for c in chunks:
+        assert not ("pip" in c.text and "run" in c.text)
+        assert len(c.text) <= 120

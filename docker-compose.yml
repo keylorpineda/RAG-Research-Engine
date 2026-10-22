@@ -48,8 +48,19 @@ services:
     # Scale with: docker compose up --scale worker=3
     stop_grace_period: 30s
 
+  # Optional local language model: docker compose --profile local-llm up
+  # then: docker compose exec ollama ollama pull qwen2.5:7b-instruct
+  # and set LLM_PROVIDER=openai_compatible, LLM_BASE_URL=http://ollama:11434/v1 in .env.
+  ollama:
+    image: ollama/ollama:0.40.8
+    profiles: ["local-llm"]
+    restart: unless-stopped
+    volumes:
+      - ollama:/root/.ollama
+
 volumes:
   pg_data:
   uploads:
   # The local embedding model, downloaded once and shared by the API and the workers.
   models:
+  ollama:

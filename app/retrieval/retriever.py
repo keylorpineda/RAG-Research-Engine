@@ -43,8 +43,12 @@ def retrieve(
     ef_search: int = 100,
     reranker: Reranker | None = None,
     rerank_candidates: int = 30,
+    lexical_query: str | None = None,
 ) -> Retrieval:
     """Up to ``k`` candidates, best first.
+
+    ``lexical_query`` replaces the question for full-text search only (a translation); dense
+    search and the reranker always see the original question.
 
     With a ``reranker``, the first stage gathers ``max(k, rerank_candidates)`` chunks and the
     reranker picks and orders the final ``k``.
@@ -57,7 +61,7 @@ def retrieve(
             db, embeddings.embed_query(question), k=first_stage_k, ef_search=ef_search
         )
     if mode in (RetrievalMode.LEXICAL, RetrievalMode.HYBRID):
-        lexical = lexical_search(db, question, k=first_stage_k)
+        lexical = lexical_search(db, lexical_query or question, k=first_stage_k)
 
     dense_scores = {h.chunk_id: h.score for h in dense}
     lexical_scores = {h.chunk_id: h.score for h in lexical}
