@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="Query pipeline with the abstention gate">
+<style>
+  text{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;fill:#E6EDF3}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .muted{fill:#8B98A5}
+
+  .flow{stroke-dasharray:6 10;animation:dash 1s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-16}}
+  .gate{animation:gate 3s ease-in-out infinite;transform-origin:735px 175px}
+  @keyframes gate{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.traveler{display:none}}
+</style>
+<rect x=".5" y=".5" width="1199" height="399" rx="20" fill="#0D1117" stroke="#2D3742"/>
+
+<text x="40" y="52" font-size="18" font-weight="800">Question answering</text>
+<text x="225" y="52" font-size="14" class="muted">the gate decides before the language model is called</text>
+<path d="M210 175C250 175 250 110 290 110" stroke="#2D3742" stroke-width="2" fill="none"/><path class="flow" d="M210 175C250 175 250 110 290 110" stroke="#2DD4BF" stroke-width="2" fill="none" opacity=".75"/><path d="M210 175C250 175 250 240 290 240" stroke="#2D3742" stroke-width="2" fill="none"/><path class="flow" d="M210 175C250 175 250 240 290 240" stroke="#60A5FA" stroke-width="2" fill="none" opacity=".75"/><path d="M470 110C510 110 510 175 545 175" stroke="#2D3742" stroke-width="2" fill="none"/><path class="flow" d="M470 110C510 110 510 175 545 175" stroke="#2DD4BF" stroke-width="2" fill="none" opacity=".75"/><path d="M470 240C510 240 510 175 545 175" stroke="#2D3742" stroke-width="2" fill="none"/><path class="flow" d="M470 240C510 240 510 175 545 175" stroke="#60A5FA" stroke-width="2" fill="none" opacity=".75"/><path d="M655 175H675" stroke="#2D3742" stroke-width="2" fill="none"/><path class="flow" d="M655 175H675" stroke="#2DD4BF" stroke-width="2" fill="none" opacity=".75"/><path d="M795 175H880" stroke="#2D3742" stroke-width="2" fill="none"/><path class="flow" d="M795 175H880" stroke="#2DD4BF" stroke-width="2" fill="none" opacity=".75"/><path d="M735 235V300" stroke="#2D3742" stroke-width="2" fill="none"/><path class="flow" d="M735 235V300" stroke="#FB923C" stroke-width="2" fill="none" opacity=".75"/>
+<circle class="traveler" r="6" fill="#2DD4BF"><animateMotion dur="6s" repeatCount="indefinite" path="M210 175C250 175 250 110 290 110H470C510 110 510 175 545 175H655M675 175H795H880"/></circle>
+<g class="node k0"><rect x="40" y="135" width="170" height="80" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="125.0" y="171.0" text-anchor="middle" font-size="16" font-weight="700">Question</text><text x="125.0" y="193.0" text-anchor="middle" font-size="12.5" class="muted">EN or ES</text></g>
+<g class="node k0"><rect x="290" y="75" width="180" height="70" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="380.0" y="106.0" text-anchor="middle" font-size="16" font-weight="700">Dense</text><text x="380.0" y="128.0" text-anchor="middle" font-size="12.5" class="muted">pgvector HNSW</text></g>
+<g class="node k0"><rect x="290" y="205" width="180" height="70" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="380.0" y="236.0" text-anchor="middle" font-size="16" font-weight="700">Lexical</text><text x="380.0" y="258.0" text-anchor="middle" font-size="12.5" class="muted">Postgres full-text</text></g>
+<g class="node k0"><rect x="545" y="135" width="110" height="80" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="600.0" y="171.0" text-anchor="middle" font-size="16" font-weight="700">RRF</text><text x="600.0" y="193.0" text-anchor="middle" font-size="12.5" class="muted">fuse ranks</text></g>
+<g class="gate"><path d="M735 115L795 175L735 235L675 175Z" fill="#0E2A28" stroke="#2DD4BF" stroke-width="2"/>
+<text x="735" y="172" text-anchor="middle" font-size="13" font-weight="700">best cos</text>
+<text x="735" y="190" text-anchor="middle" font-size="13" font-weight="700">≥ τ ?</text></g>
+<g class="node k0"><rect x="880" y="120" width="280" height="110" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="1020.0" y="171.0" text-anchor="middle" font-size="16" font-weight="700">Answer with [n]</text><text x="1020.0" y="193.0" text-anchor="middle" font-size="12.5" class="muted">temperature 0 · citations checked</text></g>
+<g class="node k0"><rect x="620" y="300" width="230" height="70" rx="14" fill="#2C1A0E" stroke="#FB923C" stroke-width="1.5"/><text x="735.0" y="331.0" text-anchor="middle" font-size="16" font-weight="700">Abstain</text><text x="735.0" y="353.0" text-anchor="middle" font-size="12.5" class="muted">insufficient_evidence</text></g>
+<text x="820" y="164" font-size="12" class="muted">yes</text>
+<text x="745" y="275" font-size="12" class="muted">no</text>
+<text x="1020" y="262" text-anchor="middle" font-size="12.5" class="muted">invented [n] are removed and reported</text>
+<text x="1020" y="282" text-anchor="middle" font-size="12.5" class="muted">"NO_ANSWER" → model_declined</text>
+
+</svg>

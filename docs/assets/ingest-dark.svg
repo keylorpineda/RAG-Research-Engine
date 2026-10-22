@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 290" width="1200" height="290" role="img" aria-label="Ingestion pipeline">
+<style>
+  text{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;fill:#E6EDF3}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .muted{fill:#8B98A5}
+
+  .flow{stroke-dasharray:6 10;animation:dash 1s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-16}}
+.k0 rect{animation:k0 7.5s linear infinite}@keyframes k0{0%,0.0%{stroke:#2D3742}0.1%,19.9%{stroke:#2DD4BF}20.0%,100%{stroke:#2D3742}}
+.k1 rect{animation:k1 7.5s linear infinite}@keyframes k1{0%,20.0%{stroke:#2D3742}20.1%,39.9%{stroke:#2DD4BF}40.0%,100%{stroke:#2D3742}}
+.k2 rect{animation:k2 7.5s linear infinite}@keyframes k2{0%,40.0%{stroke:#2D3742}40.1%,59.9%{stroke:#2DD4BF}60.0%,100%{stroke:#2D3742}}
+.k3 rect{animation:k3 7.5s linear infinite}@keyframes k3{0%,60.0%{stroke:#2D3742}60.1%,79.9%{stroke:#2DD4BF}80.0%,100%{stroke:#2D3742}}
+.k4 rect{animation:k4 7.5s linear infinite}@keyframes k4{0%,80.0%{stroke:#2D3742}80.1%,99.9%{stroke:#2DD4BF}100.0%,100%{stroke:#2D3742}}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.traveler{display:none}}
+</style>
+<rect x=".5" y=".5" width="1199" height="289" rx="20" fill="#0D1117" stroke="#2D3742"/>
+
+<text x="40" y="52" font-size="18" font-weight="800">Ingestion</text>
+<text x="140" y="52" font-size="14" class="muted">runs in a worker process; any number of workers share the queue</text>
+<g class="node k0"><rect x="30.0" y="96" width="196" height="92" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="128.0" y="138.0" text-anchor="middle" font-size="16" font-weight="700">Upload</text><text x="128.0" y="160.0" text-anchor="middle" font-size="12.5" class="muted">safe names · size limit</text></g><g class="node k1"><rect x="266.0" y="96" width="196" height="92" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="364.0" y="138.0" text-anchor="middle" font-size="16" font-weight="700">Queue</text><text x="364.0" y="160.0" text-anchor="middle" font-size="12.5" class="muted">jobs · SKIP LOCKED</text></g><g class="node k2"><rect x="502.0" y="96" width="196" height="92" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="600.0" y="138.0" text-anchor="middle" font-size="16" font-weight="700">Chunk</text><text x="600.0" y="160.0" text-anchor="middle" font-size="12.5" class="muted">1,000 chars · overlap</text></g><g class="node k3"><rect x="738.0" y="96" width="196" height="92" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="836.0" y="138.0" text-anchor="middle" font-size="16" font-weight="700">Embed</text><text x="836.0" y="160.0" text-anchor="middle" font-size="12.5" class="muted">Cohere or local ONNX</text></g><g class="node k4"><rect x="974.0" y="96" width="196" height="92" rx="14" fill="#151B23" stroke="#2D3742" stroke-width="1.5"/><text x="1072.0" y="138.0" text-anchor="middle" font-size="16" font-weight="700">Postgres</text><text x="1072.0" y="160.0" text-anchor="middle" font-size="12.5" class="muted">vector · tsvector</text></g>
+<path d="M128.0 222H1072.0" stroke="#2D3742" stroke-width="2"/>
+<path class="flow" d="M128.0 222H1072.0" stroke="#2DD4BF" stroke-width="2" opacity=".7"/>
+<circle class="traveler" r="6" fill="#2DD4BF"><animateMotion dur="7.5s" repeatCount="indefinite" path="M128.0 222H1072.0"/></circle>
+<text x="600" y="252" text-anchor="middle" font-size="12.5" class="muted">expired leases are reclaimed · failures retry with backoff · re-ingest replaces chunks</text>
+
+</svg>

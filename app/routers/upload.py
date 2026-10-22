@@ -1,60 +1,50 @@
-import pathlib
-import shutil
-import uuid
+from pathlib import Path
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, File, UploadFile, status
 
 from app.core.config import settings
-from app.models.database import get_db
-from app.models.models import Document
+from app.core.errors import BadRequestError
+from app.ingestion import queue
+from app.ingestion.storage import StoredFile, save_upload
+from app.models.database import DbSession
+from app.models.models import Document, DocumentStatus
+from app.schemas import UploadOut
 
 router = APIRouter(prefix="/api", tags=["upload"])
 
-ALLOWED_EXTENSIONS = {".txt", ".md", ".pdf"}
-MAX_FILES = 10
-MAX_FILE_SIZE = 20 * 1024 * 1024
 
+@router.post("/upload", status_code=status.HTTP_201_CREATED)
+async def upload(files: Annotated[list[UploadFile], File()], db: DbSession) -> UploadOut:
+    if len(files) > settings.max_files_per_upload:
+        raise BadRequestError(f"Upload at most {settings.max_files_per_upload} files at a time.")
 
-@router.post("/upload")
-async def upload(files: list[UploadFile] = File(...), db: Session = Depends(get_db)):
-    if not files:
-        raise HTTPException(status_code=400, detail="No files provided.")
-    if len(files) > MAX_FILES:
-        raise HTTPException(status_code=400, detail=f"Max {MAX_FILES} files.")
-
-    uploads_dir = pathlib.Path(settings.uploads_dir)
-    uploads_dir.mkdir(parents=True, exist_ok=True)
-
-    ids: list[int] = []
-    for f in files:
-        original_name = f.filename or ""
-        fn_lower = original_name.lower()
-        if not fn_lower:
-            raise HTTPException(status_code=400, detail="Filename is required.")
-
-        ext = pathlib.Path(fn_lower).suffix
-        if ext not in ALLOWED_EXTENSIONS:
-            raise HTTPException(status_code=400, detail="Only TXT/MD/PDF files are supported.")
-
-        content = await f.read()
-        if len(content) > MAX_FILE_SIZE:
-            raise HTTPException(status_code=400, detail="Max 20MB per file.")
-
-        unique_name = f"{uuid.uuid4().hex}_{original_name}"
-        dest = uploads_dir / unique_name
-        dest.write_bytes(content)
-
-        doc = Document(
-            filename=original_name,
-            mime=f.content_type,
-            path=str(dest.resolve()),
-            size=len(content),
-            status="PENDING",
-        )
-        db.add(doc)
+    stored: list[StoredFile] = []
+    try:
+        for file in files:
+            stored.append(
+                await save_upload(file, Path(settings.uploads_dir), settings.max_upload_bytes)
+            )
+        documents = [
+            Document(
+                filename=s.display_name,
+                mime=s.mime,
+                path=str(s.path),
+                size=s.size,
+                status=DocumentStatus.PENDING,
+            )
+            for s in stored
+        ]
+        db.add_all(documents)
         db.flush()
-        ids.append(doc.id)
+        for document in documents:
+            queue.enqueue(db, document)
+        db.commit()
+    except BaseException:
+        # All or nothing: a rejected file removes the ones already written by this request.
+        db.rollback()
+        for s in stored:
+            s.path.unlink(missing_ok=True)
+        raise
 
-    db.commit()
-    return {"ids": ids, "message": "uploaded"}
+    return UploadOut(ids=[d.id for d in documents])

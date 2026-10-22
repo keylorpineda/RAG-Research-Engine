@@ -1,11 +1,14 @@
 import logging
-
+import threading
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
 
-from app.routers import documents, query, upload
-from app.services.ingestion import start_background_ingestion, stop_background_ingestion
+from fastapi import FastAPI
+
+from app import worker
+from app.core.config import settings
+from app.core.errors import install_error_handling
+from app.routers import documents, health, query, upload
 
 logging.basicConfig(
     level=logging.INFO,
@@ -14,27 +17,27 @@ logging.basicConfig(
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    start_background_ingestion()
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    stop = threading.Event()
+    thread = None
+    if settings.embedded_worker:
+        thread = threading.Thread(target=worker.run, args=(stop,), name="worker", daemon=True)
+        thread.start()
     yield
-    stop_background_ingestion()
+    stop.set()
+    if thread is not None:
+        thread.join(timeout=10)
 
 
 app = FastAPI(
-    title="Python RAG API",
-    description="Retrieval-Augmented Generation API — Python port of the Spring Boot implementation.",
-    version="1.0.0",
+    title="RAG Research Engine",
+    description="Retrieval-augmented question answering over your own documents.",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
+install_error_handling(app)
 app.include_router(upload.router)
 app.include_router(documents.router)
 app.include_router(query.router)
-
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=500,
-        content={"detail": str(exc)},
-    )
+app.include_router(health.router)
