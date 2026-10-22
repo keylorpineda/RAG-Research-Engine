@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 from functools import lru_cache
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 import httpx
 
@@ -13,6 +13,7 @@ from app.providers.http import post_with_retries
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
+@runtime_checkable
 class LLMProvider(Protocol):
     name: str
 
