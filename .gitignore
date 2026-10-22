@@ -47,3 +47,7 @@ Thumbs.db
 .coverage
 coverage.xml
 htmlcov/
+
+# Benchmark corpus (downloaded by eval/corpus.py, verified by eval/corpus.lock.json)
+eval/corpus/
+eval/results/latest.*
