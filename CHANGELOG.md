@@ -39,6 +39,9 @@ add hybrid search and abstention, and prove every change with a reproducible ben
 - Every error response is `{"error": {"code", "message", "requestId"}}` (#2).
 - The desktop client shows abstentions, numbered citations and the retrieval mode (#11).
 - Database driver: psycopg 3 (`postgresql://` URLs keep working) (#5).
+- `EMBEDDING_PROVIDER` defaults to `local`; the Docker image includes the local model runtime
+  and keeps the model in a `models` volume. Set `EMBEDDING_PROVIDER=cohere` to keep using
+  Cohere (#27).
 
 ### Fixed
 
@@ -56,6 +59,9 @@ add hybrid search and abstention, and prove every change with a reproducible ben
   `INGESTION_POLL_INTERVAL_MS` and the ingestion thread inside the API.
 
 ### Upgrading from 1.x
+
+v1 always used Cohere. To keep your vectors, set `EMBEDDING_PROVIDER=cohere` before migrating;
+with the new default (`local`) every document is queued and embedded again with the local model.
 
 ```bash
 alembic stamp 0001        # mark the existing v1 schema

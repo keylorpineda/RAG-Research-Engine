@@ -86,7 +86,7 @@ made, and what it costs: [`docs/DECISIONS.md`](docs/DECISIONS.md).
 ## Quick start
 
 ```bash
-cp .env.example .env               # add GROQ_API_KEY; EMBEDDING_PROVIDER=local needs no other key
+cp .env.example .env               # only GROQ_API_KEY is required
 docker compose up --build          # Postgres + pgvector, API on :8000, one worker
 ```
 
@@ -151,7 +151,7 @@ cited passage next to the answer. Abstentions are shown with their reason.
 
 | Variable | Default | |
 | :-- | :-- | :-- |
-| `EMBEDDING_PROVIDER` | `cohere` | `cohere` (needs `COHERE_API_KEY`) or `local` (ONNX on the CPU, no key) |
+| `EMBEDDING_PROVIDER` | `local` | `local` (ONNX on the CPU, no key) or `cohere` (needs `COHERE_API_KEY`) |
 | `GROQ_API_KEY` | | Language model for the answers |
 | `MIN_SIMILARITY` | calibrated per model | Abstain below this best cosine similarity |
 | `RERANK_PROVIDER` | `none` | `cohere` reranks the top `RERANK_CANDIDATES` (30) |
