@@ -84,6 +84,14 @@ export interface SegmentOption<T> {
     button.on {
       color: var(--accent-fg);
     }
+    @media (max-width: 480px) {
+      button {
+        padding: 0 6px;
+        font-size: 13px;
+        white-space: normal;
+        line-height: 1.15;
+      }
+    }
   `,
 })
 export class Segmented<T> {

@@ -20,7 +20,7 @@
     <app-segmented class="k" [options]="ks" [label]="t().kLabel" [(value)]="store.k" />
     @if (store.questionsLeft() !== null) {
       <span class="quota" [class.out]="store.questionsLeft() === 0">
-        {{ i18n.format(t().left, { n: store.questionsLeft()! }) }}
+        {{ i18n.count(t().left, store.questionsLeft()!) }}
       </span>
     }
     <div class="submit">
@@ -74,9 +74,7 @@
             <div class="answer-head">
               <h2 id="answer-title">{{ t().answer }}</h2>
               <span class="meta">
-                {{
-                  i18n.format(t().meta, { n: store.citedCount(), s: i18n.decimal(store.seconds()) })
-                }}
+                {{ i18n.count(t().meta, store.citedCount(), { s: i18n.decimal(store.seconds()) }) }}
               </span>
               <button type="button" class="copy" (click)="copy()">
                 @if (copied()) {

@@ -19,6 +19,8 @@ export class I18nService {
   readonly lang = signal<Lang>(this.initialLang());
   readonly t = computed<Messages>(() => MESSAGES[this.lang()]);
 
+  private readonly pluralRules = computed(() => new Intl.PluralRules(this.lang()));
+
   private readonly numberFormats = computed(() => {
     const locale = this.lang() === 'es' ? 'es-CR' : 'en-US';
     return {
@@ -66,6 +68,16 @@ export class I18nService {
       if (value === undefined) return match;
       return typeof value === 'number' ? this.integer(value) : value;
     });
+  }
+
+  /** Picks the singular or plural form for `n`, then fills `{n}` and the other placeholders. */
+  count(
+    forms: { one: string; other: string },
+    n: number,
+    params: Record<string, string | number> = {},
+  ): string {
+    const form = this.pluralRules().select(n) === 'one' ? forms.one : forms.other;
+    return this.format(form, { ...params, n });
   }
 
   bytes(size: number): string {

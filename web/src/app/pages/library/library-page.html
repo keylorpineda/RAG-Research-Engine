@@ -2,7 +2,8 @@
   <h1 class="page-title">{{ t().title }}</h1>
   @if (store.state() === 'ready') {
     <span class="stats">
-      {{ i18n.format(t().stats, { docs: store.counts().all, passages: store.passages() }) }}
+      {{ i18n.count(t().documents, store.counts().all) }} ·
+      {{ i18n.count(t().passages, store.passages()) }}
     </span>
   }
 </div>

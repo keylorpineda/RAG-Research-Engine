@@ -38,6 +38,16 @@ def test_grouped_citations_are_normalized() -> None:
     assert checked.invalid == [9]
 
 
+def test_full_width_citations_are_normalized() -> None:
+    # U+3010/U+3011 is what gpt-oss writes; U+FF3B, U+FF3D and U+FF0C are full-width [ ] and ,
+    lo, lc, fo, fc, comma = chr(0x3010), chr(0x3011), chr(0xFF3B), chr(0xFF3D), chr(0xFF0C)
+    answer = f"Up to 99 characters{lo}3{lc}{lo}1{lc} and 72 for comments{fo}2{comma}5{fc}."
+    checked = check_citations(answer, 3)
+    assert checked.text == "Up to 99 characters[3][1] and 72 for comments[2]."
+    assert checked.cited == [3, 1, 2]
+    assert checked.invalid == [5]
+
+
 def test_brackets_that_are_not_citations_are_untouched() -> None:
     text = "Index with items[i] or a list like [a, b]."
     assert check_citations(text, 2).text == text
@@ -176,3 +186,14 @@ def test_groq_is_called_deterministically_with_system_and_user_messages() -> Non
     sent = json.loads(route.calls[0].request.content)
     assert sent["temperature"] == 0
     assert [m["role"] for m in sent["messages"]] == ["system", "user"]
+    assert "reasoning_effort" not in sent
+
+
+@respx.mock
+def test_groq_sends_the_reasoning_effort_when_set() -> None:
+    route = respx.post(GROQ_URL).mock(
+        return_value=httpx.Response(200, json={"choices": [{"message": {"content": "ok"}}]})
+    )
+    llm = GroqLLM("key", reasoning_effort="low", client=httpx.Client(), sleep=lambda _: None)
+    llm.complete("s", "u")
+    assert json.loads(route.calls[0].request.content)["reasoning_effort"] == "low"

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-10-22
+
+### Fixed
+
+- Groq no longer serves `llama-3.3-70b-versatile` to new keys: the default model is now
+  `openai/gpt-oss-120b` with `GROQ_REASONING_EFFORT=low`, configurable with `GROQ_MODEL`.
+- Citations written with full-width brackets (`【3】`, which gpt-oss uses) are recognized and
+  normalized to `[3]`; they were left as plain text before.
+- Web: singular and plural forms ("1 source", "1 pasaje"), RST badge color, and segmented
+  controls and header that fit on 360 px screens.
+
 ## [2.1.0] - 2026-10-22
 
 Milestone **v2.1 — Web app**, and everything the public demo (v2.2) needs short of the
@@ -114,7 +125,8 @@ python -m app.worker      # start at least one worker
 First prototype: FastAPI, Postgres with JSONB vectors, Cohere embeddings, Groq answers and the
 CustomTkinter desktop client.
 
-[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.0...develop
+[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.1...develop
+[2.1.1]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/keylorpineda/RAG-Research-Engine/releases/tag/v1.0.0

@@ -37,6 +37,11 @@
   color: var(--rose-fg);
 }
 
+.type[data-ext='RST'] {
+  background: var(--lex-bg);
+  color: var(--lex-fg);
+}
+
 .type[data-ext='MD'] {
   background: var(--accent-bg);
   color: var(--accent-fg);
