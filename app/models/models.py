@@ -5,8 +5,8 @@ from datetime import datetime
 from typing import Any
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import BigInteger, Enum, ForeignKey, Index, String, Text, text
-from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP
+from sqlalchemy import BigInteger, Computed, Enum, ForeignKey, Index, String, Text, text
+from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP, TSVECTOR
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from app.core.config import settings
@@ -67,6 +67,7 @@ class DocChunk(Base):
             postgresql_with={"m": 16, "ef_construction": 64},
             postgresql_ops={"embedding": "vector_cosine_ops"},
         ),
+        Index("ix_doc_chunks_tsv", "tsv", postgresql_using="gin"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -77,6 +78,10 @@ class DocChunk(Base):
     text: Mapped[str] = mapped_column(Text)
     token_count: Mapped[int]
     embedding: Mapped[list[float] | None] = mapped_column(Vector(settings.embedding_dim))
+    # Maintained by Postgres; "simple" = no stemming, so English and Spanish behave the same.
+    tsv: Mapped[Any] = mapped_column(
+        TSVECTOR, Computed("to_tsvector('simple', text)", persisted=True), deferred=True
+    )
 
     document: Mapped[Document] = relationship(back_populates="chunks")
 
