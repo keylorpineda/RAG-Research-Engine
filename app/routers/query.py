@@ -8,6 +8,7 @@ from app.models.database import DbSession
 from app.providers.embeddings import get_embedding_provider
 from app.providers.llm import get_llm
 from app.providers.rerank import get_reranker
+from app.retrieval.translation import get_translator
 from app.schemas import Evidence, QueryRequest, QueryResponse, Reference
 
 router = APIRouter(prefix="/api", tags=["query"])
@@ -53,6 +54,7 @@ def query(req: QueryRequest, request: Request, db: DbSession) -> QueryResponse:
         embeddings=get_embedding_provider(),
         llm=get_llm,
         reranker=get_reranker(),
+        translator=get_translator(),
     )
     response = to_response(answer, min_similarity)
     answer_cache.put(key, response)
