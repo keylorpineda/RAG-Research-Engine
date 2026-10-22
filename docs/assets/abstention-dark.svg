@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 370" width="1200" height="370" role="img" aria-label="Abstention threshold trade-off">
+<style>
+  text{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;fill:#E6EDF3}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .muted{fill:#8B98A5}
+
+  .ln{fill:none;stroke-width:3;stroke-linejoin:round;stroke-dasharray:2000;stroke-dashoffset:2000;animation:draw 2.4s ease-out forwards}
+  .l2{animation-delay:.4s}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .mark{opacity:0;animation:show .6s 2.2s forwards}
+  @keyframes show{to{opacity:1}}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.traveler{display:none}}
+</style>
+<rect x=".5" y=".5" width="1199" height="369" rx="20" fill="#0D1117" stroke="#2D3742"/>
+
+<text x="40" y="52" font-size="18" font-weight="800">Where to abstain</text>
+<text x="210" y="52" font-size="14" class="muted">best dense similarity threshold τ</text>
+<rect x="760" y="36" width="14" height="14" rx="3" fill="#2DD4BF"/><text x="780" y="48" font-size="14">answerable questions answered</text>
+<rect x="760" y="58" width="14" height="14" rx="3" fill="#FB923C"/><text x="780" y="70" font-size="14">unanswerable questions refused</text>
+<line x1="110" x2="950" y1="300.0" y2="300.0" stroke="#1D252F"/><text x="98" y="305.0" text-anchor="end" font-size="12" class="muted">0%</text><line x1="110" x2="950" y1="245.0" y2="245.0" stroke="#1D252F"/><text x="98" y="250.0" text-anchor="end" font-size="12" class="muted">25%</text><line x1="110" x2="950" y1="190.0" y2="190.0" stroke="#1D252F"/><text x="98" y="195.0" text-anchor="end" font-size="12" class="muted">50%</text><line x1="110" x2="950" y1="135.0" y2="135.0" stroke="#1D252F"/><text x="98" y="140.0" text-anchor="end" font-size="12" class="muted">75%</text><line x1="110" x2="950" y1="80.0" y2="80.0" stroke="#1D252F"/><text x="98" y="85.0" text-anchor="end" font-size="12" class="muted">100%</text><text x="110.0" y="324" text-anchor="middle" font-size="12" class="muted">0.2</text><text x="278.0" y="324" text-anchor="middle" font-size="12" class="muted">0.3</text><text x="446.0" y="324" text-anchor="middle" font-size="12" class="muted">0.4</text><text x="614.0" y="324" text-anchor="middle" font-size="12" class="muted">0.5</text><text x="782.0" y="324" text-anchor="middle" font-size="12" class="muted">0.6</text><text x="950.0" y="324" text-anchor="middle" font-size="12" class="muted">0.7</text>
+<polyline class="ln" points="110.0,80.0 194.0,80.0 278.0,80.0 362.0,80.0 446.0,80.0 530.0,80.0 614.0,86.6 698.0,100.0 782.0,150.0 866.0,216.6 950.0,250.1" stroke="#2DD4BF"/>
+<polyline class="ln l2" points="110.0,300.0 194.0,245.0 278.0,217.5 362.0,176.4 446.0,162.5 530.0,162.5 614.0,162.5 698.0,107.5 782.0,93.6 866.0,80.0 950.0,80.0" stroke="#FB923C"/>
+<g class="mark"><line x1="698.0" x2="698.0" y1="74" y2="300" stroke="#E6EDF3" stroke-dasharray="4 4"/>
+<text x="688.0" y="286" text-anchor="end" font-size="14" font-weight="700">τ = 0.55: 91% answered · 88% refused</text></g>
+<text x="40" y="350" font-size="12.5" class="muted">16 unanswerable questions, 6 of them about Python topics the corpus does not cover · calibrated on this set (eval/run.py)</text>
+
+</svg>

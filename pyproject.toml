@@ -51,6 +51,8 @@ ignore = ["PLR0913", "S101"]
 "tests/**" = ["PLR2004", "S105", "S106"]
 # Migrations interpolate the vector dimension, an int from the settings.
 "migrations/**" = ["S608"]
+# SVG templates: long markup lines and drawing coordinates.
+"docs/assets/build.py" = ["E501", "PLR0917", "PLR2004", "RUF001"]
 
 [tool.mypy]
 python_version = "3.12"
