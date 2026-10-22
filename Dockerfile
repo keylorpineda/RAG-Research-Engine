@@ -6,18 +6,18 @@ ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
-    PATH="/opt/venv/bin:$PATH"
+    PATH="/opt/venv/bin:$PATH" \n    MODEL_CACHE_DIR=/app/models
 
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev --no-install-project
+RUN uv sync --frozen --no-dev --no-install-project --extra local
 
 COPY alembic.ini ./
 COPY migrations ./migrations
 COPY app ./app
 
-RUN useradd --create-home --uid 1000 rag && mkdir -p /app/uploads && chown rag /app/uploads
+RUN useradd --create-home --uid 1000 rag \n    && mkdir -p /app/uploads /app/models \n    && chown rag /app/uploads /app/models
 USER rag
 
 EXPOSE 8000

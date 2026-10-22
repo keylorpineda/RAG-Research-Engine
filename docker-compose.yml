@@ -30,6 +30,7 @@ services:
         condition: service_healthy
     volumes:
       - uploads:/app/uploads
+      - models:/app/models
 
   worker:
     build: .
@@ -43,9 +44,12 @@ services:
         condition: service_started
     volumes:
       - uploads:/app/uploads
+      - models:/app/models
     # Scale with: docker compose up --scale worker=3
     stop_grace_period: 30s
 
 volumes:
   pg_data:
   uploads:
+  # The local embedding model, downloaded once and shared by the API and the workers.
+  models:
