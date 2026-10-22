@@ -96,6 +96,15 @@ class GroqLLM(ChatCompletionsLLM):
 
 
 def build_llm(config: Settings) -> LLMProvider:
+    if config.llm_provider == "openai_compatible":
+        return ChatCompletionsLLM(
+            f"{config.llm_base_url.rstrip('/')}/chat/completions",
+            config.llm_model,
+            api_key=config.llm_api_key,
+            label="local",
+            max_tokens=config.groq_max_output_tokens,
+            timeout=config.llm_timeout_seconds,
+        )
     if not config.groq_api_key or config.groq_api_key.strip().lower() == "changeme":
         raise ProviderNotConfiguredError("The language model provider is not configured.")
     return GroqLLM(

@@ -34,6 +34,13 @@ class Settings(BaseSettings):
     # Reasoning models only (gpt-oss): low keeps answers fast and the token budget for the answer.
     groq_reasoning_effort: Literal["low", "medium", "high"] | None = "low"
     groq_max_output_tokens: int = 1024
+    # "openai_compatible": a local server such as Ollama or llama.cpp, so nothing leaves the
+    # machine. Ollama listens on http://localhost:11434/v1; llama.cpp on http://localhost:8080/v1.
+    llm_provider: Literal["groq", "openai_compatible"] = "groq"
+    llm_base_url: str = "http://localhost:11434/v1"
+    llm_model: str = "qwen2.5:7b-instruct"
+    llm_api_key: str | None = None
+    llm_timeout_seconds: float = 180.0  # CPU inference is slow
     min_similarity: float | None = None
     cohere_api_key: str = "changeme"
     # Local by default: the project runs with a single key (Groq). See docs/DECISIONS.md.
