@@ -1,3 +1,5 @@
+import itertools
+
 import pytest
 
 from app.services.chunking import approx_tokens, chunk
@@ -31,7 +33,7 @@ def test_consecutive_chunks_overlap() -> None:
     paragraphs = [f"sentence number {i} " * 3 for i in range(20)]
     chunks = chunk("\n\n".join(paragraphs), size=200, overlap=40)
     assert len(chunks) > 1
-    for previous, current in zip(chunks, chunks[1:], strict=False):
+    for previous, current in itertools.pairwise(chunks):
         assert previous[-20:] in current
 
 
