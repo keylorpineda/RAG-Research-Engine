@@ -19,7 +19,7 @@ Each merge into `main` is a stable release, tagged `vX.Y.Z` ([Semantic Versionin
 4. Open the pull request against `develop`. The PR title is a Conventional Commit too; it becomes the squash commit.
 5. Feature PRs are squash-merged; release PRs (`develop` -> `main`) use a merge commit so both branches share history.
 
-Scopes: `api`, `retrieval`, `ingestion`, `db`, `eval`, `web`, `ci`, `repo`, `deps`.
+Scopes: `api`, `retrieval`, `ingestion`, `db`, `eval`, `web`, `deploy`, `ci`, `repo`, `deps`.
 
 ## Local checks
 
