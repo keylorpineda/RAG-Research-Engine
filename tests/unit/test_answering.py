@@ -158,7 +158,7 @@ def test_lexical_only_retrieval_is_gated_on_having_hits(retrieval: list[Retrieva
 
 
 def test_threshold_defaults_per_embedding_model() -> None:
-    assert Settings(embedding_provider="local").abstain_threshold == 0.35
+    assert Settings(embedding_provider="local").abstain_threshold == 0.55
     assert Settings(embedding_provider="local", min_similarity=0.5).abstain_threshold == 0.5
 
 
