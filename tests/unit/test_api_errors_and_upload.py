@@ -5,11 +5,14 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
+from app.answering.service import AbstainReason, Answer
 from app.core.config import settings
 from app.main import app
 from app.models.database import get_db
 from app.models.models import Document
-from app.services import query_service
+from app.retrieval.dense import Hit
+from app.retrieval.retriever import Candidate
+from app.routers import query as query_route
 
 
 class FakeSession:
@@ -128,7 +131,8 @@ def test_unexpected_errors_do_not_leak_details(
     def explode(*_args: Any, **_kwargs: Any) -> None:
         raise RuntimeError("password=hunter2 at /srv/secret/path")
 
-    monkeypatch.setattr(query_service, "ask", explode)
+    monkeypatch.setattr(query_route, "get_llm", lambda: None)
+    monkeypatch.setattr(query_route, "answer_question", explode)
 
     response = client.post("/api/query", json={"q": "anything"}, headers={"X-Request-ID": "abc"})
 
@@ -154,3 +158,58 @@ def test_missing_document_is_a_404(client: TestClient) -> None:
     response = client.get("/api/documents/42")
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "not_found"
+
+
+def test_query_response_shape(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    hit = Hit(
+        chunk_id=7,
+        document_id=3,
+        filename="pep-492.txt",
+        chunk_index=2,
+        text="t",
+        token_count=5,
+        score=0.81,
+    )
+    passage = Candidate(hit, score=0.03, dense_score=0.81, lexical_score=0.2)
+    answer = Answer(
+        True, "Use await [1].", None, passages=[passage], cited=[1], best_similarity=0.81
+    )
+    monkeypatch.setattr(query_route, "get_llm", lambda: None)
+    monkeypatch.setattr(query_route, "answer_question", lambda *a, **kw: answer)
+
+    body = client.post("/api/query", json={"q": "How?", "minSimilarity": 0.4}).json()
+
+    assert body == {
+        "answered": True,
+        "answer": "Use await [1].",
+        "reason": None,
+        "refs": [
+            {
+                "n": 1,
+                "docId": 3,
+                "filename": "pep-492.txt",
+                "chunkIndex": 2,
+                "score": 0.03,
+                "denseScore": 0.81,
+                "lexicalScore": 0.2,
+                "rerankScore": None,
+                "cited": True,
+                "text": "t",
+            }
+        ],
+        "invalidCitations": [],
+        "evidence": {"bestSimilarity": 0.81, "minSimilarity": 0.4},
+    }
+
+
+def test_abstention_has_no_answer_text(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    answer = Answer(False, None, AbstainReason.INSUFFICIENT_EVIDENCE, best_similarity=0.1)
+    monkeypatch.setattr(query_route, "get_llm", lambda: None)
+    monkeypatch.setattr(query_route, "answer_question", lambda *a, **kw: answer)
+
+    body = client.post("/api/query", json={"q": "Unrelated?"}).json()
+
+    assert body["answered"] is False
+    assert body["answer"] is None
+    assert body["reason"] == "insufficient_evidence"
+    assert body["refs"] == []

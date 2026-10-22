@@ -52,8 +52,6 @@ ignore = ["PLR0913", "S101"]
 "tests/**" = ["PLR2004", "S105", "S106"]
 # Migrations interpolate the vector dimension, an int from the settings.
 "migrations/**" = ["S608"]
-# The prompt is rewritten in #8.
-"app/services/query_service.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"
