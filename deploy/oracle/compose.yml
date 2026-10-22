@@ -1,0 +1,61 @@
+# Single-VM deployment (Oracle Cloud Always Free, or any Linux host with Docker): Postgres with
+# pgvector, the API and HTTPS through Caddy. See docs/DEPLOY.md.
+#
+#   cd deploy/oracle && cp .env.example .env   # fill it in
+#   docker compose up -d --build
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ragdb
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag -d ragdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Not published: only the API reaches it.
+
+  api:
+    build:
+      context: ../..
+      args:
+        EXTRAS: ${EXTRAS:-local}
+    command: api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://rag:${POSTGRES_PASSWORD}@postgres:5432/ragdb
+      TRUST_PROXY_HEADERS: "true"
+      EMBEDDED_WORKER: ${EMBEDDED_WORKER:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+      - models:/app/models
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - api
+
+volumes:
+  pg_data:
+  uploads:
+  models:
+  caddy_data:

@@ -35,6 +35,7 @@ jobs:
             db
             eval
             web
+            deploy
             deps
             deps-dev
             ci

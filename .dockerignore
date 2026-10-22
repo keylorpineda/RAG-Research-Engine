@@ -1,0 +1,13 @@
+# Only what the image copies; keeps secrets and large folders out of the build context.
+*
+!pyproject.toml
+!uv.lock
+!alembic.ini
+!migrations/
+!app/
+!docker-entrypoint.sh
+!eval/__init__.py
+!eval/corpus.py
+!eval/corpus.lock.json
+!eval/seed.py
+**/__pycache__

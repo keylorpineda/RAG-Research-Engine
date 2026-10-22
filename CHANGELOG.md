@@ -20,6 +20,18 @@ Milestone **v2.2 — Web app**.
 - Benchmarks page generated from `eval/results` (#41) and inline SVG illustrations (#42).
 - API: `chunkCount` on documents; `uploadsEnabled`, `maxUploadMb` and `maxFilesPerUpload` on
   `/api/health`; `UPLOADS_ENABLED=false` turns uploads off for a public demo (#40).
+- Public demo limits, all off by default: a daily question cap counted in the database, a
+  per-client hourly limit, and a cache for repeated questions; the web app shows the questions
+  left and words the limits in the visitor's language (#44).
+- Deployment: `render.yaml`, `web/vercel.json`, a single-VM setup with Caddy for Oracle Cloud
+  (`deploy/oracle/`), `python -m eval.seed` to preload the PEPs, and `docs/DEPLOY.md` (#44).
+
+### Fixed
+
+- The Dockerfile had literal `
+` sequences in two instructions; the image now builds, serves on
+  `$PORT`, applies migrations on start and can skip the local model (`EXTRAS=none`) (#44).
+- A `.dockerignore` keeps `.env`, `.venv` and `node_modules` out of the build context (#44).
 
 ### Removed
 

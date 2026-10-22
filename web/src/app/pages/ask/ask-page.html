@@ -18,6 +18,11 @@
   <div class="controls">
     <app-segmented [options]="modes()" [label]="t().modeLabel" [(value)]="store.mode" />
     <app-segmented class="k" [options]="ks" [label]="t().kLabel" [(value)]="store.k" />
+    @if (store.questionsLeft() !== null) {
+      <span class="quota" [class.out]="store.questionsLeft() === 0">
+        {{ i18n.format(t().left, { n: store.questionsLeft()! }) }}
+      </span>
+    }
     <div class="submit">
       <kbd aria-hidden="true">{{ t().shortcut }}</kbd>
       <button type="submit" class="primary" [disabled]="!store.canAsk()">{{ t().submit }}</button>

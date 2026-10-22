@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from sqlalchemy import text
 
 from app.core.config import settings
+from app.core.demo_limits import questions_left_today
 from app.ingestion.queue import queue_depth
 from app.models.database import DbSession
 from app.schemas import HealthOut
@@ -19,5 +20,6 @@ def health(db: DbSession) -> HealthOut:
         uploads_enabled=settings.uploads_enabled,
         max_upload_mb=settings.max_upload_mb,
         max_files_per_upload=settings.max_files_per_upload,
+        questions_left_today=questions_left_today(db),
         jobs=queue_depth(db),
     )

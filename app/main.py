@@ -4,6 +4,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app import worker
 from app.core.config import settings
@@ -37,6 +38,15 @@ app = FastAPI(
 )
 
 install_error_handling(app)
+origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
+if origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_methods=["GET", "POST", "DELETE"],
+        allow_headers=["Content-Type", "X-Request-ID"],
+        expose_headers=["X-Request-ID"],
+    )
 app.include_router(upload.router)
 app.include_router(documents.router)
 app.include_router(query.router)

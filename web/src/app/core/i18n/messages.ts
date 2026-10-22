@@ -22,6 +22,7 @@ export const EN = {
     kLabel: 'Passages',
     submit: 'Ask',
     shortcut: 'Ctrl ↵',
+    left: '{n} demo questions left today',
     answer: 'Answer',
     meta: '{n} sources · {s} s',
     copy: 'Copy',
@@ -144,6 +145,9 @@ export const EN = {
   errors: {
     network: 'The API cannot be reached. It may be waking up: try again in a minute.',
     unknown: 'Something went wrong.',
+    daily_limit_reached:
+      'The demo has used today’s questions. It resets at midnight UTC: come back tomorrow.',
+    too_many_requests: 'You have asked several questions in the last hour. Try again a bit later.',
   },
 };
 
@@ -169,6 +173,7 @@ export const ES: Messages = {
     kLabel: 'Pasajes',
     submit: 'Preguntar',
     shortcut: 'Ctrl ↵',
+    left: 'Quedan {n} preguntas de la demo hoy',
     answer: 'Respuesta',
     meta: '{n} fuentes · {s} s',
     copy: 'Copiar',
@@ -292,5 +297,9 @@ export const ES: Messages = {
     network:
       'No se puede conectar con la API. Puede estar despertando: intenta de nuevo en un minuto.',
     unknown: 'Algo salió mal.',
+    daily_limit_reached:
+      'La demo ya usó las preguntas de hoy. Se reinicia a medianoche UTC: vuelve mañana.',
+    too_many_requests:
+      'Hiciste varias preguntas en la última hora. Intenta de nuevo un poco más tarde.',
   },
 };
