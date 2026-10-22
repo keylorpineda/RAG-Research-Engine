@@ -21,6 +21,7 @@ All three use the same image (`Dockerfile`). Its entrypoint applies the migratio
 | `DAILY_QUESTION_LIMIT` | `15` | Counted in the `queries` table. A Cohere trial key allows about 1,000 calls a month, and a question costs two (embed + rerank). |
 | `QUESTIONS_PER_CLIENT_PER_HOUR` | `5` | So one visitor cannot spend the day's questions. |
 | `ANSWER_CACHE_SIZE` | `256` | Repeated questions, such as the suggested ones, are answered from memory: free, and not counted. |
+| `LEXICAL_TRANSLATION` | `true` | Spanish questions also match the English PEPs in full-text search (docs/BENCHMARKS.md). |
 | `TRUST_PROXY_HEADERS` | `true` | Read the visitor's address from `X-Forwarded-For`, set by Vercel and Render or Caddy. |
 | `COHERE_*_PER_MINUTE` | `90000` / `90` / `9` | Stay under the trial key's per-minute limits. |
 

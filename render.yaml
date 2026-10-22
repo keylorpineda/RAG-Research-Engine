@@ -42,3 +42,6 @@ services:
         value: "256"
       - key: TRUST_PROXY_HEADERS
         value: "true"
+      # Spanish questions also match English text in full-text search.
+      - key: LEXICAL_TRANSLATION
+        value: "true"
