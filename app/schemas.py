@@ -42,7 +42,9 @@ class MessageOut(Schema):
 class QueryRequest(Schema):
     q: str = Field(min_length=1, max_length=2000, description="The question.")
     k: int = Field(default=5, ge=1, le=20, description="Passages to retrieve.")
-    threshold: float = Field(default=0.5, ge=-1.0, le=1.0)
+    threshold: float = Field(
+        default=0.3, ge=-1.0, le=1.0, description="Minimum cosine similarity of a passage."
+    )
     max_tokens: int = Field(default=4000, ge=100, le=16000)
 
 
