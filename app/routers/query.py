@@ -1,29 +1,19 @@
-from typing import Any
+from fastapi import APIRouter
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-
+from app.core.errors import BadRequestError
 from app.models.database import DbSession
+from app.schemas import QueryRequest, QueryResponse
 from app.services import query_service
 
 router = APIRouter(prefix="/api", tags=["query"])
 
 
-class QueryRequest(BaseModel):
-    q: str
-    k: int = 5
-    threshold: float = 0.5
-    max_tokens: int = 4000
-
-
 @router.post("/query")
-def query(req: QueryRequest, db: DbSession) -> dict[str, Any]:
-    if not req.q or not req.q.strip():
-        raise HTTPException(status_code=400, detail="Query text 'q' is required.")
-    try:
-        result = query_service.ask(
-            db, req.q.strip(), top_k=req.k, threshold=req.threshold, max_tokens=req.max_tokens
-        )
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
-    return result
+def query(req: QueryRequest, db: DbSession) -> QueryResponse:
+    question = req.q.strip()
+    if not question:
+        raise BadRequestError("The question cannot be empty.")
+    result = query_service.ask(
+        db, question, top_k=req.k, threshold=req.threshold, max_tokens=req.max_tokens
+    )
+    return QueryResponse.model_validate(result)
