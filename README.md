@@ -4,12 +4,16 @@
 </picture>
 
 <p align="center">
-  <a href="https://github.com/keylorpineda/RAG-Research-Engine/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/keylorpineda/RAG-Research-Engine/ci.yml?branch=develop&style=flat-square&label=CI&color=2E7564" alt="CI"></a>
-  <a href="https://github.com/keylorpineda/RAG-Research-Engine/actions/workflows/eval.yml"><img src="https://img.shields.io/github/actions/workflow/status/keylorpineda/RAG-Research-Engine/eval.yml?branch=develop&style=flat-square&label=benchmark&color=2E7564" alt="Benchmark"></a>
+  <a href="https://github.com/keylorpineda/RAG-Research-Engine/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/keylorpineda/RAG-Research-Engine/ci.yml?branch=main&style=flat-square&label=CI&color=2E7564" alt="CI"></a>
+  <a href="https://github.com/keylorpineda/RAG-Research-Engine/actions/workflows/eval.yml"><img src="https://img.shields.io/github/actions/workflow/status/keylorpineda/RAG-Research-Engine/eval.yml?branch=main&style=flat-square&label=benchmark&color=2E7564" alt="Benchmark"></a>
   <img src="https://img.shields.io/badge/Python-3.12-2E7564?style=flat-square" alt="Python 3.12">
   <img src="https://img.shields.io/badge/Postgres-pgvector-2E7564?style=flat-square" alt="Postgres with pgvector">
   <img src="https://img.shields.io/badge/mypy-strict-2E7564?style=flat-square" alt="mypy strict">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2E7564?style=flat-square" alt="MIT license"></a>
+</p>
+
+<p align="center">
+  <a href="https://research-engine-omega.vercel.app"><img src="https://img.shields.io/badge/Try_the_live_demo-research--engine--omega.vercel.app-2E7564?style=for-the-badge" alt="Try the live demo: research-engine-omega.vercel.app"></a>
 </p>
 
 Upload PDFs and notes, ask questions in English or Spanish, and get answers that cite the exact
@@ -49,8 +53,9 @@ code map: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Try it
 
-The public demo answers questions about 26 Python Enhancement Proposals, the same corpus as the
-benchmark. A few that work well:
+**[research-engine-omega.vercel.app](https://research-engine-omega.vercel.app)** answers
+questions about 26 Python Enhancement Proposals, the same corpus as the benchmark. A few that work
+well:
 
 | Ask | Answered from |
 | :-- | :-- |
@@ -59,9 +64,11 @@ benchmark. A few that work well:
 | What is a dataclass's `__post_init__` for? | PEP 557 |
 | What is the capital of Australia? | Nothing: the engine refuses and shows why |
 
-It runs on free tiers: the first request after a quiet spell can take about a minute while the API
-wakes up, and the demo allows 15 new questions a day (repeated ones are cached). The API is
-documented at [`/docs`](https://research-engine-ed3a.onrender.com/docs).
+It runs on free tiers (Vercel, Render, Neon): the first request after a quiet spell can take
+about a minute while the API wakes up, and the demo allows 15 new questions a day (repeated ones
+are cached). Uploads are off there, because every visitor would share one library; run it
+yourself to use your own documents. The API is documented at
+[`/docs`](https://research-engine-ed3a.onrender.com/docs).
 
 ## Quick start
 
