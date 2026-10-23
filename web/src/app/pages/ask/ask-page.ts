@@ -10,6 +10,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { RouterLink } from '@angular/router';
+
 import { RetrievalMode } from '../../core/api/api.types';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { Illustration } from '../../shared/illustration';
@@ -22,7 +24,15 @@ import { PassageCard } from './passage-card';
 
 @Component({
   selector: 'app-ask-page',
-  imports: [Segmented, AnswerView, PassageCard, EvidenceMeter, AbstainCard, Illustration],
+  imports: [
+    RouterLink,
+    Segmented,
+    AnswerView,
+    PassageCard,
+    EvidenceMeter,
+    AbstainCard,
+    Illustration,
+  ],
   providers: [AskStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './ask-page.html',

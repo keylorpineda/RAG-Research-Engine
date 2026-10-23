@@ -16,8 +16,27 @@
     <span class="count" aria-hidden="true">{{ store.question().length }} / {{ max }}</span>
   </div>
   <div class="controls">
-    <app-segmented [options]="modes()" [label]="t().modeLabel" [(value)]="store.mode" />
-    <app-segmented class="k" [options]="ks" [label]="t().kLabel" [(value)]="store.k" />
+    <app-segmented
+      class="modes"
+      [options]="modes()"
+      [label]="t().modeLabel"
+      [(value)]="store.mode"
+      aria-describedby="mode-help"
+    />
+    <span class="k-label" aria-hidden="true">{{ t().kLabel }}</span>
+    <app-segmented
+      class="k"
+      [options]="ks"
+      [label]="t().kLabel"
+      [(value)]="store.k"
+      aria-describedby="mode-help"
+    />
+    <p class="hint">
+      <span id="mode-help" aria-live="polite">
+        {{ t().modeHelp[store.mode()] }} {{ i18n.count(t().kHelp, store.k()) }}
+      </span>
+      <a routerLink="/benchmarks">{{ t().howItWorks }}</a>
+    </p>
     @if (store.questionsLeft() !== null) {
       <span class="quota" [class.out]="store.questionsLeft() === 0">
         {{ i18n.count(t().left, store.questionsLeft()!) }}
@@ -38,6 +57,19 @@
         <div>
           <h2>{{ t().idleTitle }}</h2>
           <p>{{ t().idleBody }}</p>
+          @if (store.library(); as library) {
+            <p class="library">
+              {{
+                library.peps
+                  ? i18n.format(t().library.peps, { n: library.count })
+                  : i18n.format(t().library.docs, {
+                      n: library.count,
+                      names: library.names.join(', '),
+                    })
+              }}
+              <a routerLink="/library">{{ t().library.browse }}</a>
+            </p>
+          }
           <div class="samples">
             <span>{{ t().examples }}</span>
             @for (sample of t().samples; track sample) {
@@ -134,7 +166,7 @@
           </aside>
         </div>
       } @else {
-        <app-abstain-card [response]="r" (rephrase)="rephrase()" />
+        <app-abstain-card [response]="r" [question]="store.asked()" (rephrase)="rephrase()" />
       }
     }
   }

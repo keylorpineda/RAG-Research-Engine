@@ -22,6 +22,21 @@ export const EN = {
     modeLabel: 'Retrieval mode',
     modes: { hybrid: 'Hybrid', dense: 'Dense', lexical: 'Lexical' },
     kLabel: 'Passages',
+    modeHelp: {
+      hybrid: 'Hybrid (recommended): combines both searches; the best results on the benchmark.',
+      dense: 'Dense: searches by meaning, even with other words or another language.',
+      lexical: 'Lexical: searches the exact words; good for names, code and numbers.',
+    },
+    kHelp: {
+      one: 'The model reads {n} passage before answering.',
+      other: 'The model reads {n} passages before answering.',
+    },
+    howItWorks: 'How it works',
+    library: {
+      peps: 'This demo searches {n} Python Enhancement Proposals: the style guide, async and await, dataclasses, the walrus operator and more.',
+      docs: 'This demo searches {n} documents: {names}.',
+      browse: 'Browse them in the Library',
+    },
     submit: 'Ask',
     shortcut: 'Ctrl ↵',
     left: { one: '{n} demo question left today', other: '{n} demo questions left today' },
@@ -51,6 +66,9 @@ export const EN = {
       showClosest: 'Closest matches',
       hideClosest: 'Hide matches',
       closest: 'Closest passages',
+      overview:
+        'The engine answers from passages; it does not summarize the whole library. Browse the Library to see what is in it, then ask about one topic.',
+      browseLibrary: 'Browse the Library',
       insufficient_evidence: {
         title: 'Not in your documents',
         body: 'The closest passage scored {best}. Answers need {min}, so nothing was generated.',
@@ -101,6 +119,9 @@ export const EN = {
       count: 'Upload at most {max} files at a time.',
     },
     uploadsOff: 'Uploads are turned off in this demo. Ask about the documents already here.',
+    preloaded:
+      'Uploads are turned off in this demo. These documents are preloaded: {what} Ask about any of them.',
+    preloadedPeps: '{n} Python Enhancement Proposals, the design documents of the Python language.',
   },
   benchmarks: {
     title: 'Benchmarks',
@@ -173,6 +194,22 @@ export const ES: Messages = {
     modeLabel: 'Modo de búsqueda',
     modes: { hybrid: 'Híbrido', dense: 'Denso', lexical: 'Léxico' },
     kLabel: 'Pasajes',
+    modeHelp: {
+      hybrid:
+        'Híbrido (recomendado): combina ambas búsquedas; los mejores resultados en el benchmark.',
+      dense: 'Denso: busca por significado, aunque uses otras palabras u otro idioma.',
+      lexical: 'Léxico: busca las palabras exactas; útil para nombres, código y números.',
+    },
+    kHelp: {
+      one: 'El modelo lee {n} pasaje antes de responder.',
+      other: 'El modelo lee {n} pasajes antes de responder.',
+    },
+    howItWorks: 'Cómo funciona',
+    library: {
+      peps: 'Esta demo busca en {n} Python Enhancement Proposals (PEP): la guía de estilo, async y await, dataclasses, el operador morsa y más.',
+      docs: 'Esta demo busca en {n} documentos: {names}.',
+      browse: 'Míralos en la Biblioteca',
+    },
     submit: 'Preguntar',
     shortcut: 'Ctrl ↵',
     left: {
@@ -205,6 +242,9 @@ export const ES: Messages = {
       showClosest: 'Pasajes más cercanos',
       hideClosest: 'Ocultar pasajes',
       closest: 'Pasajes más cercanos',
+      overview:
+        'El motor responde a partir de pasajes; no resume la biblioteca entera. Mira la Biblioteca para ver qué contiene y pregunta por un tema concreto.',
+      browseLibrary: 'Ver la Biblioteca',
       insufficient_evidence: {
         title: 'No está en tus documentos',
         body: 'El pasaje más cercano obtuvo {best}. Para responder se necesita {min}, así que no se generó nada.',
@@ -255,6 +295,10 @@ export const ES: Messages = {
     },
     uploadsOff:
       'La subida de archivos está desactivada en esta demo. Pregunta sobre los documentos que ya están.',
+    preloaded:
+      'La subida de archivos está desactivada en esta demo. Estos documentos vienen precargados: {what} Pregunta sobre cualquiera de ellos.',
+    preloadedPeps:
+      '{n} Python Enhancement Proposals (PEP), los documentos de diseño del lenguaje Python.',
   },
   benchmarks: {
     title: 'Benchmarks',

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The Ask page explains the selected retrieval mode and the passage count, with a link to the
+  benchmarks (#85).
+- When uploads are off, the Ask and Library pages say what the library holds, built from
+  `/api/documents`; asking "what is this about?" suggests browsing the Library instead (#84).
+
+### Fixed
+
+- Ask controls on phones: the mode selector and the passage count each fill a row, with 40 px
+  tall targets, and the keyboard shortcut is hidden on touch screens.
+
 ## [2.2.3] - 2026-10-23
 
 ### Added
