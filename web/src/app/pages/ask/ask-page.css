@@ -58,6 +58,17 @@ textarea:focus {
   gap: var(--space-3);
 }
 
+.k-label {
+  display: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.k {
+  --segment-min: 44px;
+}
+
 .hint {
   order: 1;
   flex-basis: 100%;
@@ -381,6 +392,14 @@ kbd {
   }
 
   .modes {
+    flex: 1 1 100%;
+  }
+
+  .k-label {
+    display: block;
+  }
+
+  .k {
     flex: 1 1 auto;
   }
 

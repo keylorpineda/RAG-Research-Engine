@@ -16,8 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Ask controls on phones: the mode selector fills the row and the keyboard shortcut is hidden on
-  touch screens.
+- Ask controls on phones: the mode selector and the passage count each fill a row, with 40 px
+  tall targets, and the keyboard shortcut is hidden on touch screens.
 
 ## [2.2.3] - 2026-10-23
 
