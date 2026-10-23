@@ -49,6 +49,9 @@ import { Inline, parseAnswer } from './answer-format';
           @case ('strong') {
             <strong>{{ part.value }}</strong>
           }
+          @case ('em') {
+            <em>{{ part.value }}</em>
+          }
           @case ('cite') {
             @let ref = byNumber().get(part.n);
             @if (ref) {
