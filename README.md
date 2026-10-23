@@ -14,7 +14,8 @@
 
 Upload PDFs and notes, ask questions in English or Spanish, and get answers that cite the exact
 passages they use. When the documents do not hold the answer, the engine refuses **before**
-calling the language model instead of writing something plausible.
+calling the language model instead of writing something plausible. A web app shows each answer
+next to its sources, and the abstentions with the evidence behind them.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results-dark.svg">
@@ -36,17 +37,38 @@ drops. Method, full tables and experiments: [`docs/BENCHMARKS.md`](docs/BENCHMAR
   `insufficient_evidence` and no tokens are spent.
 - **Checked citations.** The model cites numbered passages `[n]`; citations to passages it was
   not given are removed and reported.
+- **Questions in Spanish too.** Dense search crosses languages; for full-text search the
+  question is translated, which doubles Spanish lexical recall.
 - **A queue in Postgres.** Workers claim ingestion jobs with `FOR UPDATE SKIP LOCKED`, with
   leases, retries and idempotent re-ingestion.
+- **A web app.** Angular, in English and Spanish, light and dark: ask with linked citations,
+  manage the library, and read the benchmarks.
 
 Why each choice, and what it costs: [`docs/DECISIONS.md`](docs/DECISIONS.md) ·
 code map: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+## Try it
+
+The public demo answers questions about 26 Python Enhancement Proposals, the same corpus as the
+benchmark. A few that work well:
+
+| Ask | Answered from |
+| :-- | :-- |
+| How are coroutines declared, and what does await do? | PEP 492 |
+| ¿Qué dice el Zen de Python sobre los errores? | PEP 20 |
+| What is a dataclass's `__post_init__` for? | PEP 557 |
+| What is the capital of Australia? | Nothing: the engine refuses and shows why |
+
+It runs on free tiers: the first request after a quiet spell can take about a minute while the API
+wakes up, and the demo allows 15 new questions a day (repeated ones are cached). The API is
+documented at [`/docs`](https://research-engine-ed3a.onrender.com/docs).
 
 ## Quick start
 
 ```bash
 cp .env.example .env        # only GROQ_API_KEY is required
 docker compose up --build   # Postgres + pgvector, API on :8000, one worker
+cd web && pnpm install && pnpm start   # web app on :4200, /api proxied to :8000
 ```
 
 ```bash
@@ -69,7 +91,7 @@ are already local by default.
 {
   "answered": true,
   "answer": "Coroutines are declared with async def [1] and suspended with await [2].",
-  "refs": [{ "n": 1, "filename": "pep-0492.rst", "chunkIndex": 4, "denseScore": 0.71, "lexicalScore": 0.12, "cited": true, "text": "..." }],
+  "refs": [{ "n": 1, "filename": "pep-0492.rst", "chunkIndex": 4, "section": null, "denseScore": 0.71, "lexicalScore": 0.12, "cited": true, "text": "..." }],
   "invalidCitations": [],
   "evidence": { "bestSimilarity": 0.71, "minSimilarity": 0.55 }
 }
@@ -145,7 +167,10 @@ Contributions: [`CONTRIBUTING.md`](.github/CONTRIBUTING.md) · security reports:
 
 - The corpus is small (26 documents) and thresholds are calibrated on the same questions they are
   measured on: the numbers compare designs, they are not a promise on your documents.
+- The demo lowers the threshold to 0.45 so that it answers, and leans on the model's own refusal
+  for the rest; [`docs/DEPLOY.md`](docs/DEPLOY.md) explains the trade-off.
 - The API has no authentication; run it on a private network or behind an authenticating proxy.
+  The demo turns uploads off and caps questions per day and per visitor instead.
 
 ---
 
