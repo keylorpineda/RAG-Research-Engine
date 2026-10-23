@@ -33,7 +33,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(
     title="RAG Research Engine",
     description="Retrieval-augmented question answering over your own documents.",
-    version="2.2.3",
+    version="2.3.0",
     lifespan=lifespan,
 )
 
