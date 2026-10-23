@@ -1,6 +1,6 @@
 [project]
 name = "rag-research-engine"
-version = "2.2.0"
+version = "2.2.1"
 description = "Retrieval-augmented question answering over your own documents, with a reproducible benchmark."
 readme = "README.md"
 requires-python = ">=3.12"

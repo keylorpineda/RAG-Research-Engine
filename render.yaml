@@ -5,7 +5,7 @@ services:
     name: research-engine-api
     runtime: docker
     plan: free
-    region: oregon
+    region: ohio  # next to Neon's us-east-2
     branch: main
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
@@ -44,4 +44,7 @@ services:
         value: "true"
       # Spanish questions also match English text in full-text search.
       - key: LEXICAL_TRANSLATION
+        value: "true"
+      # Load the PEPs on the first start (one query on later ones).
+      - key: SEED_CORPUS
         value: "true"

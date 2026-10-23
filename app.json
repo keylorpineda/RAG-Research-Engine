@@ -59,6 +59,9 @@
     },
     "LEXICAL_TRANSLATION": {
       "value": "true"
+    },
+    "SEED_CORPUS": {
+      "value": "true"
     }
   }
 }
