@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.2] - 2026-10-23
+
+### Changed
+
+- Demo threshold 0.45 for Cohere: the calibrated 0.60 refused basic questions on the live demo
+  (PEP 8 on line length scored 0.50). Explained in `docs/DEPLOY.md` (#76).
+- The web app's sample questions are ones checked on the demo configuration (#76).
+- README: try-it section, Spanish questions and the web app among the features; the Render
+  route in `docs/DEPLOY.md` as it was deployed (#76).
+
 ## [2.2.1] - 2026-10-23
 
 ### Added
@@ -155,7 +165,8 @@ python -m app.worker      # start at least one worker
 First prototype: FastAPI, Postgres with JSONB vectors, Cohere embeddings, Groq answers and the
 CustomTkinter desktop client.
 
-[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.1...develop
+[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.2...develop
+[2.2.2]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.0...v2.1.1
