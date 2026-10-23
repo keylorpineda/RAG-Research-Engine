@@ -21,7 +21,7 @@ from app.ingestion.pipeline import ingest_document
 from app.models.database import SessionLocal
 from app.models.models import Document, DocumentStatus
 from app.providers.embeddings import get_embedding_provider
-from eval.corpus import PEPS_COMMIT, fetch
+from eval.corpus import PEPS, PEPS_COMMIT, fetch, filename
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -31,11 +31,17 @@ def main() -> int:
     config.attributes["database_url"] = settings.database_url
     command.upgrade(config, "head")
 
+    with SessionLocal() as db:
+        present = set(db.scalars(select(Document.filename)))
+    if {filename(pep) for pep in PEPS} <= present:
+        # Nothing to do: no download and no provider calls, so it is cheap on every start.
+        print(f"All {len(PEPS)} PEPs are already in the library.")
+        return 0
+
     embeddings = get_embedding_provider()
     start = time.perf_counter()
     added = chunks = 0
     with SessionLocal() as db:
-        present = set(db.scalars(select(Document.filename)))
         for path in fetch():
             if path.name in present:
                 continue
