@@ -32,6 +32,10 @@ services:
       - key: COHERE_RERANK_REQUESTS_PER_MINUTE
         value: "9"
       # Public demo: the PEP corpus is preloaded, visitors only ask.
+      # Lower than the calibrated 0.60: a demo should answer; the model still says NO_ANSWER
+      # when the passages do not hold it (docs/DEPLOY.md).
+      - key: MIN_SIMILARITY
+        value: "0.45"
       - key: UPLOADS_ENABLED
         value: "false"
       - key: DAILY_QUESTION_LIMIT

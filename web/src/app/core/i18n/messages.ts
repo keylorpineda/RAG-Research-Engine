@@ -12,10 +12,12 @@ export const EN = {
     question: 'Question',
     placeholder: 'Ask something your documents can answer…',
     examples: 'Try',
+    // Checked on the demo's configuration (Cohere, rerank, threshold 0.45): each one is answered
+    // with a citation. Update them together with the demo settings.
     samples: [
       'How are coroutines declared, and what does await do?',
-      '¿Qué recomienda PEP 8 sobre la longitud de las líneas?',
-      'What problem does the walrus operator solve?',
+      '¿Qué dice el Zen de Python sobre los errores?',
+      "What is a dataclass's __post_init__ for?",
     ],
     modeLabel: 'Retrieval mode',
     modes: { hybrid: 'Hybrid', dense: 'Dense', lexical: 'Lexical' },
@@ -165,8 +167,8 @@ export const ES: Messages = {
     examples: 'Prueba',
     samples: [
       '¿Cómo se declaran las corrutinas y qué hace await?',
-      'What does PEP 8 recommend about line length?',
-      '¿Qué problema resuelve el operador morsa?',
+      '¿Cuántos espacios se deben usar por nivel de indentación?',
+      'What does the Zen of Python say about errors?',
     ],
     modeLabel: 'Modo de búsqueda',
     modes: { hybrid: 'Híbrido', dense: 'Denso', lexical: 'Léxico' },
