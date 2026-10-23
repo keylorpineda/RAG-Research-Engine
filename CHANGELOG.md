@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-10-23
+
+### Added
+
+- `SEED_CORPUS=true` loads the PEPs when the API starts, for hosts without a shell or outside
+  database access; `eval.seed` returns at once when they are all present (#44).
+
+### Changed
+
+- The web app's `/api` rewrite points at the Render API; the Render blueprint uses Ohio, next to
+  Neon's us-east-2 (#44).
+
 ## [2.2.0] - 2026-10-23
 
 ### Added
@@ -143,7 +155,8 @@ python -m app.worker      # start at least one worker
 First prototype: FastAPI, Postgres with JSONB vectors, Cohere embeddings, Groq answers and the
 CustomTkinter desktop client.
 
-[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.0...develop
+[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.1...develop
+[2.2.1]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.0.0...v2.1.0
