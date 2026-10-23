@@ -99,4 +99,25 @@ describe('AskStore', () => {
     http.expectOne('/api/query').flush(answered());
     expect(store.asked()).toBe('Second?');
   });
+
+  it('loads what the library holds when uploads are off, once', () => {
+    store.refreshQuota();
+    http.expectOne('/api/health').flush({ uploadsEnabled: false, questionsLeftToday: 3 });
+    http.expectOne('/api/documents').flush([
+      { id: 1, filename: 'pep-0008.rst', status: 'READY', chunkCount: 4 },
+      { id: 2, filename: 'pep-0020.rst', status: 'READY', chunkCount: 1 },
+    ]);
+    expect(store.library()).toEqual({ count: 2, peps: true, names: ['PEP 8', 'PEP 20'] });
+
+    store.refreshQuota();
+    http.expectOne('/api/health').flush({ uploadsEnabled: false, questionsLeftToday: 2 });
+    http.expectNone('/api/documents');
+  });
+
+  it('does not describe the library when uploads are on', () => {
+    store.refreshQuota();
+    http.expectOne('/api/health').flush({ uploadsEnabled: true, questionsLeftToday: null });
+    http.expectNone('/api/documents');
+    expect(store.library()).toBeNull();
+  });
 });

@@ -7,6 +7,7 @@ import { ApiError } from '../../core/api/api-error';
 import { ApiService } from '../../core/api/api.service';
 import { DocumentOut, HealthOut } from '../../core/api/api.types';
 import { I18nService } from '../../core/i18n/i18n.service';
+import { summarizeLibrary } from '../../core/library-summary';
 import { DEFAULT_LIMITS, UploadLimits, checkFiles } from './upload-rules';
 
 export type Filter = 'all' | 'ready' | 'working' | 'error';
@@ -86,6 +87,7 @@ export class LibraryStore {
     } satisfies Record<Filter, number>;
   });
   readonly visible = computed(() => this.documents().filter(FILTERS[this.filter()]));
+  readonly summary = computed(() => summarizeLibrary(this.documents()));
   readonly passages = computed(() =>
     this.documents().reduce((total, d) => total + (d.chunkCount ?? 0), 0),
   );

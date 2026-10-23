@@ -15,6 +15,17 @@ import { Illustration } from '../../shared/illustration';
 import { Gauge } from './gauge';
 import { PassageCard } from './passage-card';
 
+/**
+ * "What is this about?" and its Spanish forms: a request for an overview of the library, which
+ * the engine cannot answer from a few passages.
+ */
+const OVERVIEW =
+  /\bwhat\s+(is|are)\s+(this|these|it|they|the\s+(texts?|documents?|files?|library|demo))(\s+all)?\s+about\b|\bde\s+qu[eé]\s+(se\s+)?(trata|tratan|va|van|habla|hablan)\b/i;
+
+export function isOverviewQuestion(question: string): boolean {
+  return OVERVIEW.test(question);
+}
+
 /** Why the engine did not answer, with the evidence behind that decision. */
 @Component({
   selector: 'app-abstain-card',
@@ -42,11 +53,16 @@ import { PassageCard } from './passage-card';
         <span class="badge">{{ t().badge }}</span>
         <h2 id="abstain-title">{{ copy().title }}</h2>
         <p>{{ i18n.format(copy().body, { best: best(), min: min() }) }}</p>
+        @if (overview()) {
+          <p class="overview">{{ t().overview }}</p>
+        }
         <div class="actions">
           <button type="button" class="primary" (click)="rephrase.emit()">
             {{ t().rephrase }}
           </button>
-          <a class="ghost" routerLink="/library">{{ t().addDocument }}</a>
+          <a class="ghost" routerLink="/library">
+            {{ overview() ? t().browseLibrary : t().addDocument }}
+          </a>
           @if (r.refs.length) {
             <button
               type="button"
@@ -126,6 +142,9 @@ import { PassageCard } from './passage-card';
       color: var(--soft);
       font-size: 16px;
     }
+    p.overview {
+      color: var(--text);
+    }
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -190,6 +209,8 @@ export class AbstainCard {
   protected readonly t = () => this.i18n.t().ask.abstain;
 
   readonly response = input.required<QueryResponse>();
+  /** The question that was asked, to recognize requests for an overview of the library. */
+  readonly question = input('');
   readonly rephrase = output();
 
   protected readonly expanded = signal(false);
@@ -198,6 +219,9 @@ export class AbstainCard {
     const reason = this.response().reason ?? 'insufficient_evidence';
     return this.t()[reason];
   });
+  protected readonly overview = computed(
+    () => this.response().reason !== 'no_passages' && isOverviewQuestion(this.question()),
+  );
   protected readonly best = computed(() =>
     this.i18n.decimal(this.response().evidence.bestSimilarity ?? 0),
   );

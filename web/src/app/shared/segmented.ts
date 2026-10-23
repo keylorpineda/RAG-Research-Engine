@@ -66,7 +66,7 @@ export interface SegmentOption<T> {
     }
     button {
       position: relative;
-      min-width: 0;
+      min-width: var(--segment-min, 0);
       height: 36px;
       padding: 0 14px;
       border: 0;
@@ -86,6 +86,7 @@ export interface SegmentOption<T> {
     }
     @media (max-width: 480px) {
       button {
+        height: 40px;
         padding: 0 6px;
         font-size: 13px;
         white-space: normal;

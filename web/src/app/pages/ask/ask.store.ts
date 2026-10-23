@@ -5,6 +5,7 @@ import { ApiError } from '../../core/api/api-error';
 import { ApiService } from '../../core/api/api.service';
 import { QueryResponse, RetrievalMode } from '../../core/api/api.types';
 import { I18nService } from '../../core/i18n/i18n.service';
+import { LibrarySummary, summarizeLibrary } from '../../core/library-summary';
 
 export type AskState = 'idle' | 'loading' | 'done' | 'error';
 
@@ -30,6 +31,8 @@ export class AskStore {
   readonly active = signal<number | null>(null);
   /** Remaining questions under the server's daily demo cap; null when there is none. */
   readonly questionsLeft = signal<number | null>(null);
+  /** What the library holds; only loaded when uploads are off, as on the public demo. */
+  readonly library = signal<LibrarySummary | null>(null);
 
   readonly canAsk = computed(() => {
     const q = this.question().trim();
@@ -46,7 +49,17 @@ export class AskStore {
 
   refreshQuota(): void {
     this.api.health().subscribe({
-      next: (health) => this.questionsLeft.set(health.questionsLeftToday ?? null),
+      next: (health) => {
+        this.questionsLeft.set(health.questionsLeftToday ?? null);
+        if (health.uploadsEnabled === false && !this.library()) this.loadLibrary();
+      },
+      error: () => undefined,
+    });
+  }
+
+  private loadLibrary(): void {
+    this.api.documents().subscribe({
+      next: (docs) => this.library.set(summarizeLibrary(docs)),
       error: () => undefined,
     });
   }
