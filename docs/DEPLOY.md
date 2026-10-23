@@ -115,7 +115,18 @@ To load the PEPs from your machine instead (or into another database), run
    To call the API from another origin instead, set `CORS_ORIGINS` on the API.
 3. Every pull request gets a preview deployment.
 
-## Check
+## Keep the Render API awake (optional)
+
+The free web service sleeps after 15 minutes without requests, and the next visitor waits about a
+minute. An uptime monitor that requests it every few minutes keeps it awake:
+
+1. In [UptimeRobot](https://uptimerobot.com), add an **HTTP(s)** monitor for
+   `https://<service>.onrender.com/api/ping` with a **5-minute** interval.
+2. Use `/api/ping`, not `/api/health`: ping does not touch the database, so Neon still suspends
+   its compute when nobody is asking questions and the free compute hours last.
+3. One always-on service uses about 744 of the 750 free instance hours a month that Render gives
+   each workspace, so keep it the only free service running there.
+
 
 - `GET /api/health` returns `"uploadsEnabled": false` and `questionsLeftToday`.
 - On a phone, ask "What does PEP 8 recommend about line length?": the answer cites passages from
