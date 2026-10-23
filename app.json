@@ -62,6 +62,9 @@
     },
     "SEED_CORPUS": {
       "value": "true"
+    },
+    "MIN_SIMILARITY": {
+      "value": "0.45"
     }
   }
 }
