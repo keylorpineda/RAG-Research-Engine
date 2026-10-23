@@ -17,6 +17,7 @@ All three use the same image (`Dockerfile`). Its entrypoint applies the migratio
 
 | Variable | Demo value | Why |
 | :-- | :-- | :-- |
+| `MIN_SIMILARITY` | `0.45` | Cohere scores clearly relevant passages around 0.50 (PEP 8 on line length: 0.50). The calibrated 0.60 refuses every unanswerable benchmark question but also 27% of answerable ones; at 0.45 the gate lets all answerable ones through, and the model's `NO_ANSWER` is the second filter. Off-topic questions still score far below (0.29). |
 | `UPLOADS_ENABLED` | `false` | Visitors ask about the preloaded PEPs; nothing is written to disk. |
 | `DAILY_QUESTION_LIMIT` | `15` | Counted in the `queries` table. A Cohere trial key allows about 1,000 calls a month, and a question costs two (embed + rerank). |
 | `QUESTIONS_PER_CLIENT_PER_HOUR` | `5` | So one visitor cannot spend the day's questions. |
