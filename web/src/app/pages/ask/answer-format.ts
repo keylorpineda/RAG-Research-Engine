@@ -1,17 +1,19 @@
 /**
  * Turns the model's answer into blocks the template renders without innerHTML: paragraphs and
- * lists made of text, `code`, **bold** and [n] citations ([1, 2] and [1][2] both work).
+ * lists made of text, `code`, **bold**, *italics* and [n] citations ([1, 2] and [1][2] both work).
+ * Underscores are left alone: they are part of names like __post_init__.
  */
 
 export type Inline =
   | { kind: 'text'; value: string }
   | { kind: 'code'; value: string }
   | { kind: 'strong'; value: string }
+  | { kind: 'em'; value: string }
   | { kind: 'cite'; n: number };
 
 export type Block = { kind: 'p'; inlines: Inline[] } | { kind: 'ul' | 'ol'; items: Inline[][] };
 
-const INLINE = /`([^`]+)`|\*\*([^*]+)\*\*|\[(\d+(?:\s*,\s*\d+)*)\]/g;
+const INLINE = /`([^`]+)`|\*\*([^*]+)\*\*|\*([^*\s](?:[^*]*[^*\s])?)\*|\[(\d+(?:\s*,\s*\d+)*)\]/g;
 const BULLET = /^\s*[-*•]\s+/;
 const NUMBERED = /^\s*\d+[.)]\s+/;
 
@@ -21,9 +23,10 @@ export function parseInline(text: string): Inline[] {
   for (const match of text.matchAll(INLINE)) {
     const index = match.index ?? 0;
     if (index > last) out.push({ kind: 'text', value: text.slice(last, index) });
-    const [, code, strong, cites] = match;
+    const [, code, strong, em, cites] = match;
     if (code !== undefined) out.push({ kind: 'code', value: code });
     else if (strong !== undefined) out.push({ kind: 'strong', value: strong });
+    else if (em !== undefined) out.push({ kind: 'em', value: em });
     else for (const n of cites.split(',')) out.push({ kind: 'cite', n: Number(n.trim()) });
     last = index + match[0].length;
   }

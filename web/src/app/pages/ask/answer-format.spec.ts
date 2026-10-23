@@ -13,6 +13,17 @@ describe('answer format', () => {
     ]);
   });
 
+  it('reads italics but leaves lone asterisks and underscores alone', () => {
+    expect(parseInline('a *native coroutine* here')).toEqual([
+      { kind: 'text', value: 'a ' },
+      { kind: 'em', value: 'native coroutine' },
+      { kind: 'text', value: ' here' },
+    ]);
+    expect(parseInline('2 * 3 and __post_init__')).toEqual([
+      { kind: 'text', value: '2 * 3 and __post_init__' },
+    ]);
+  });
+
   it('reads grouped and adjacent citations', () => {
     const cites = (text: string) =>
       parseInline(text)

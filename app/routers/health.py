@@ -10,6 +10,13 @@ from app.schemas import HealthOut
 router = APIRouter(prefix="/api", tags=["health"])
 
 
+@router.get("/ping")
+def ping() -> dict[str, str]:
+    """Liveness only, without touching the database: for uptime monitors on hosts that sleep,
+    so the database (Neon suspends idle computes) is not kept awake as well."""
+    return {"status": "ok"}
+
+
 @router.get("/health")
 def health(db: DbSession) -> HealthOut:
     db.execute(text("SELECT 1"))
