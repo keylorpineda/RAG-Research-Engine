@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-10-23
+
 ### Added
 
 - The Ask page explains the selected retrieval mode and the passage count, with a link to the
@@ -188,7 +190,8 @@ python -m app.worker      # start at least one worker
 First prototype: FastAPI, Postgres with JSONB vectors, Cohere embeddings, Groq answers and the
 CustomTkinter desktop client.
 
-[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.3...develop
+[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.3.0...develop
+[2.3.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.3...v2.3.0
 [2.2.3]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.0...v2.2.1
