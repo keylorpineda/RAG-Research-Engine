@@ -33,20 +33,22 @@ says so in the visitor's language.
 
 ## A. Render + Neon
 
-1. **Database.** Create a Neon project, then run `CREATE EXTENSION vector;` in its SQL editor. Copy
-   the connection string and use the `postgresql+psycopg://…?sslmode=require` form.
-2. **Load the PEPs** from your machine, with the same embedding settings the API will use:
+1. **Database.** Create a Neon project for the demo alone (us-east-2, next to Render's Ohio).
+   Copy its connection string from **Connect** (`postgresql://…neon.tech/neondb?sslmode=require`);
+   the API accepts it as it is. Check that the host belongs to this project: pointing it at
+   another project's database would create the engine's tables there. The first migration enables
+   `vector`.
+2. **API.** In Render, choose New → Blueprint and select this repository; `render.yaml` creates
+   the Docker web service in Ohio with the demo settings. Add the three secrets in its
+   Environment page: `DATABASE_URL`, `GROQ_API_KEY` and `COHERE_API_KEY`.
+3. **First start.** With `SEED_CORPUS=true` the API applies the migrations and loads the 26 PEPs
+   itself (1,240 passages, about 15 Cohere calls, 2 to 4 minutes); later starts only check that
+   they are there. Nothing needs to reach the database from outside.
+4. **Check** `https://<service>.onrender.com/api/health`: `"embeddingModel":
+   "embed-multilingual-v3.0"`, `"uploadsEnabled": false` and `questionsLeftToday`.
 
-   ```bash
-   DATABASE_URL="postgresql+psycopg://…neon.tech/neondb?sslmode=require" \
-   EMBEDDING_PROVIDER=cohere COHERE_API_KEY=… uv run python -m eval.seed
-   ```
-
-   This applies the migrations and ingests 26 PEPs (1,240 passages, about 15 Cohere calls). Run it
-   again to resume an interrupted load; PEPs already present are skipped.
-3. **API.** In Render, choose New → Blueprint and select this repository. `render.yaml` creates
-   `research-engine-api` and asks for `DATABASE_URL`, `GROQ_API_KEY` and `COHERE_API_KEY`. Check
-   `https://research-engine-api.onrender.com/api/health`.
+To load the PEPs from your machine instead (or into another database), run
+`DATABASE_URL=… EMBEDDING_PROVIDER=cohere COHERE_API_KEY=… uv run python -m eval.seed`.
 
 ## B. Oracle Cloud VM
 
