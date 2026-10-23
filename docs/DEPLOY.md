@@ -22,6 +22,7 @@ All three use the same image (`Dockerfile`). Its entrypoint applies the migratio
 | `QUESTIONS_PER_CLIENT_PER_HOUR` | `5` | So one visitor cannot spend the day's questions. |
 | `ANSWER_CACHE_SIZE` | `256` | Repeated questions, such as the suggested ones, are answered from memory: free, and not counted. |
 | `LEXICAL_TRANSLATION` | `true` | Spanish questions also match the English PEPs in full-text search (docs/BENCHMARKS.md). |
+| `SEED_CORPUS` | `true` | The API loads the PEPs on its first start, so no one needs outside access to the database. Later starts check and skip. |
 | `TRUST_PROXY_HEADERS` | `true` | Read the visitor's address from `X-Forwarded-For`, set by Vercel and Render or Caddy. |
 | `COHERE_*_PER_MINUTE` | `90000` / `90` / `9` | Stay under the trial key's per-minute limits. |
 
