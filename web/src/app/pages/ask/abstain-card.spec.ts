@@ -3,14 +3,15 @@ import { provideRouter } from '@angular/router';
 
 import { AbstainReason } from '../../core/api/api.types';
 import { I18nService } from '../../core/i18n/i18n.service';
-import { AbstainCard } from './abstain-card';
+import { AbstainCard, isOverviewQuestion } from './abstain-card';
 import { abstained, ref } from './ask.fixtures';
 
-function render(reason: AbstainReason, refs = [ref(1, false)]) {
+function render(reason: AbstainReason, refs = [ref(1, false)], question = '') {
   TestBed.configureTestingModule({ providers: [provideRouter([])] });
   TestBed.inject(I18nService).setLang('en');
   const fixture = TestBed.createComponent(AbstainCard);
   fixture.componentRef.setInput('response', abstained(reason, refs));
+  fixture.componentRef.setInput('question', question);
   fixture.detectChanges();
   return fixture;
 }
@@ -55,5 +56,34 @@ describe('AbstainCard', () => {
     fixture.componentInstance.rephrase.subscribe(() => (asked = true));
     (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.primary')!.click();
     expect(asked).toBe(true);
+  });
+
+  it('recognizes requests for an overview of the library, in English and Spanish', () => {
+    for (const q of [
+      'What is this about?',
+      'what are the texts about',
+      '¿De qué trata?',
+      'de que tratan los documentos',
+      '¿De qué se trata la biblioteca?',
+    ]) {
+      expect(isOverviewQuestion(q)).toBe(true);
+    }
+    for (const q of ['What does PEP 8 say about tabs?', '¿Qué hace await?']) {
+      expect(isOverviewQuestion(q)).toBe(false);
+    }
+  });
+
+  it('suggests browsing the library when asked what it is about', () => {
+    const root = render('insufficient_evidence', [ref(1, false)], 'What is this about?')
+      .nativeElement as HTMLElement;
+    expect(root.querySelector('.overview')?.textContent).toContain('does not summarize');
+    expect(root.querySelector('a')?.textContent?.trim()).toBe('Browse the Library');
+  });
+
+  it('keeps the usual copy for other questions', () => {
+    const root = render('insufficient_evidence', [ref(1, false)], 'Capital of Australia?')
+      .nativeElement as HTMLElement;
+    expect(root.querySelector('.overview')).toBeNull();
+    expect(root.querySelector('a')?.textContent?.trim()).toBe('Add a document');
   });
 });
