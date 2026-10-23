@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.3] - 2026-10-23
+
+### Added
+
+- `/api/ping` for uptime monitors; it does not touch the database, so Neon can still suspend.
+- The live demo, https://research-engine-omega.vercel.app, linked from the README.
+
+### Fixed
+
+- Italics in answers (`*native coroutine*`) are rendered instead of showing the asterisks.
+
 ## [2.2.2] - 2026-10-23
 
 ### Changed
@@ -165,7 +176,8 @@ python -m app.worker      # start at least one worker
 First prototype: FastAPI, Postgres with JSONB vectors, Cohere embeddings, Groq answers and the
 CustomTkinter desktop client.
 
-[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.2...develop
+[Unreleased]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.3...develop
+[2.2.3]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/keylorpineda/RAG-Research-Engine/compare/v2.1.1...v2.2.0
