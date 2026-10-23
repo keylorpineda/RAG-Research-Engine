@@ -58,6 +58,22 @@ textarea:focus {
   gap: var(--space-3);
 }
 
+.hint {
+  order: 1;
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.hint a,
+.library a {
+  color: var(--accent-fg);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .quota {
   color: var(--faint);
   font-family: var(--font-mono);
@@ -140,6 +156,10 @@ kbd {
   margin: 0;
   max-width: 60ch;
   color: var(--muted);
+}
+
+.intro p.library {
+  color: var(--soft);
 }
 
 .samples {
@@ -349,13 +369,36 @@ kbd {
   color: var(--rose-fg);
 }
 
+@media (hover: none) {
+  kbd {
+    display: none;
+  }
+}
+
 @media (max-width: 560px) {
   .ask {
     padding: 10px;
   }
 
+  .modes {
+    flex: 1 1 auto;
+  }
+
+  .hint {
+    order: 0;
+  }
+
+  .quota {
+    flex-basis: 100%;
+  }
+
+  kbd {
+    display: none;
+  }
+
   .submit {
     width: 100%;
+    margin-left: 0;
   }
 
   .submit .primary {

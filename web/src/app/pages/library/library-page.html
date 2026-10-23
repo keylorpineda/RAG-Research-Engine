@@ -11,7 +11,22 @@
 @if (store.uploadsEnabled()) {
   <app-drop-zone class="rise" [maxMb]="store.limits().maxUploadMb" (files)="store.upload($event)" />
 } @else {
-  <p class="note rise">{{ t().uploadsOff }}</p>
+  <p class="note rise">
+    @if (store.summary(); as summary) {
+      {{
+        i18n.format(t().preloaded, {
+          what: summary.peps
+            ? i18n.format(t().preloadedPeps, { n: summary.count })
+            : i18n.format(i18n.t().ask.library.docs, {
+                n: summary.count,
+                names: summary.names.join(', '),
+              }),
+        })
+      }}
+    } @else {
+      {{ t().uploadsOff }}
+    }
+  </p>
 }
 
 <div class="notices" aria-live="polite">
